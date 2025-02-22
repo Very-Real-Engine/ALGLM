@@ -1,6 +1,4 @@
-#include "include/math/vec4.h"
-#include "include/math/vec3.h"
-#include "include/math/mat4.h"
+#include "alglm.h"
 
 namespace alglm
 {
@@ -23,6 +21,16 @@ vec4 &vec4::operator=(const vec4 &copy)
 	this->z = copy.z;
 	this->w = copy.w;
 	return *this;
+}
+
+float length(const vec4 &vector)
+{
+	return sqrt(vector.x * vector.x + vector.y * vector.y + vector.z * vector.z + vector.w * vector.w);
+}
+
+float length2(const vec4 &vector)
+{
+	return vector.x * vector.x + vector.y * vector.y + vector.z * vector.z + vector.w * vector.w;
 }
 
 vec4 vec4::operator+(const vec4 &rhs) const
@@ -53,7 +61,7 @@ float &vec4::operator[](int idx)
 	case 3:
 		return this->w;
 	default:
-		throw std::out_of_range("Index out of range");
+		return this->x;
 	}
 }
 
@@ -70,7 +78,7 @@ float vec4::operator[](int idx) const
 	case 3:
 		return this->w;
 	default:
-		throw std::out_of_range("Index out of range");
+		return this->x;
 	}
 }
 
@@ -106,23 +114,52 @@ float *value_ptr(vec4 &vector)
 
 float dot(const vec4 &vector1, const vec4 &vector2)
 {
-	float ret = 0.0f;
-	for (int i = 0; i < 4; i++)
-	{
-		ret += vector1[i] * vector2[i];
-	}
-	return ret;
+	return (vector1.x * vector2.x + vector1.y * vector2.y + vector1.z * vector2.z + vector1.w * vector2.w);
 }
 
 vec4 normalize(const vec4 &vector)
 {
-	float magnitude = 0;
-	for (int i = 0; i < 4; i++)
-	{
-		magnitude += pow(vector[i], 2);
-	}
-	magnitude = sqrt(magnitude);
+	float magnitude = length(vector);
 	return vec4(vector.x / magnitude, vector.y / magnitude, vector.z / magnitude, vector.w / magnitude);
+}
+
+vec4 mix(const vec4 &x, const vec4 &y, float a)
+{
+	return x * (1.0f - a) + y * a;
+}
+
+// ivec4
+
+ivec4::ivec4() : x(0.0f), y(0.0f), z(0.0f), w(0.0f) {};
+
+ivec4::ivec4(int32_t x) : x(x), y(x), z(x), w(x) {};
+
+ivec4::ivec4(int32_t x, int32_t y, int32_t z, int32_t w) : x(x), y(y), z(z), w(w) {};
+
+ivec4::ivec4(const ivec4 &copy) : x(copy.x), y(copy.y), z(copy.z), w(copy.w) {};
+
+ivec4 &ivec4::operator=(const ivec4 &copy)
+{
+	this->x = copy.x;
+	this->y = copy.y;
+	this->z = copy.z;
+	this->w = copy.w;
+	return *this;
+}
+
+ivec4 ivec4::operator+(const ivec4 &rhs) const
+{
+	return ivec4(this->x + rhs.x, this->y + rhs.y, this->z + rhs.z, this->w + rhs.w);
+}
+
+ivec4 ivec4::operator-(const ivec4 &rhs) const
+{
+	return ivec4(this->x - rhs.x, this->y - rhs.y, this->z - rhs.z, this->w - rhs.w);
+}
+
+ivec4 ivec4::operator*(const ivec4 &rhs) const
+{
+	return ivec4(this->x * rhs.x, this->y * rhs.y, this->z * rhs.z, this->w * rhs.w);
 }
 
 } // namespace alglm

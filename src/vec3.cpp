@@ -1,5 +1,4 @@
-#include "include/math/vec3.h"
-#include "include/math/vec4.h"
+#include "alglm.h"
 
 namespace alglm
 {
@@ -57,7 +56,7 @@ float &vec3::operator[](int idx)
 	case 2:
 		return this->z;
 	default:
-		throw std::out_of_range("Index out of range");
+		return this->x;
 	}
 }
 
@@ -72,10 +71,9 @@ float vec3::operator[](int idx) const
 	case 2:
 		return this->z;
 	default:
-		throw std::out_of_range("Index out of range");
+		return this->x;
 	}
 }
-
 
 // non-member function
 
@@ -89,19 +87,29 @@ vec3 operator*(const vec3 &vector, float scalar)
 	return vec3(scalar * vector.x, scalar * vector.y, scalar * vector.z);
 }
 
+vec3 operator/(float scalar, const vec3 &vector)
+{
+	return vec3(scalar / vector.x, scalar / vector.y, scalar / vector.z);
+}
+
+vec3 operator/(const vec3 &vector, float scalar)
+{
+	return vec3(scalar / vector.x, scalar / vector.y, scalar / vector.z);
+}
+
 float dot(const vec3 &vector1, const vec3 &vector2)
 {
-	float ret = 0.0f;
-	for (int i = 0; i < 3; i++)
-	{
-		ret += vector1[i] * vector2[i];
-	}
-	return ret;
+	return vector1.x * vector2.x + vector1.y * vector2.y + vector1.z * vector2.z;
 }
 
 float length(const vec3 &vector)
 {
 	return std::sqrt(vector.x * vector.x + vector.y * vector.y + vector.z * vector.z);
+}
+
+float length2(const vec3 &vector)
+{
+	return vector.x * vector.x + vector.y * vector.y + vector.z * vector.z;
 }
 
 float *value_ptr(vec3 &vector)
@@ -117,12 +125,35 @@ vec3 cross(const vec3 &vector1, const vec3 &vector2)
 
 vec3 normalize(const vec3 &vector)
 {
-	float magnitude = 0;
-	for (int i = 0; i < 3; i++)
-	{
-		magnitude += pow(vector[i], 2);
-	}
-	magnitude = sqrt(magnitude);
+	float magnitude = length(vector);
 	return vec3(vector.x / magnitude, vector.y / magnitude, vector.z / magnitude);
 }
+
+vec3 min(const vec3 &v1, const vec3 &v2)
+{
+	vec3 ret;
+
+	ret.x = v1.x <= v2.x ? v1.x : v2.x;
+	ret.y = v1.y <= v2.y ? v1.y : v2.y;
+	ret.z = v1.z <= v2.z ? v1.z : v2.z;
+
+	return ret;
+}
+
+vec3 max(const vec3 &v1, const vec3 &v2)
+{
+	vec3 ret;
+
+	ret.x = v1.x >= v2.x ? v1.x : v2.x;
+	ret.y = v1.y >= v2.y ? v1.y : v2.y;
+	ret.z = v1.z >= v2.z ? v1.z : v2.z;
+
+	return ret;
+}
+
+vec3 mix(const vec3 &x, const vec3 &y, float a)
+{
+	return x * (1.0f - a) + y * a;
+}
+
 } // namespace alglm

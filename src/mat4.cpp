@@ -1,84 +1,192 @@
-#include "include/math/mat4.h"
-#include "include/math/quat.h"
-#include "include/math/vec3.h"
-#include "include/math/vec4.h"
+#include "alglm.h"
 
 namespace alglm
 {
 
 // member function
 
-mat4::mat4() : data{} {};
+mat4::mat4()
+{
+	data[0] = 0.0f;
+	data[1] = 0.0f;
+	data[2] = 0.0f;
+	data[3] = 0.0f;
+	data[4] = 0.0f;
+	data[5] = 0.0f;
+	data[6] = 0.0f;
+	data[7] = 0.0f;
+	data[8] = 0.0f;
+	data[9] = 0.0f;
+	data[10] = 0.0f;
+	data[11] = 0.0f;
+	data[12] = 0.0f;
+	data[13] = 0.0f;
+	data[14] = 0.0f;
+	data[15] = 0.0f;
+}
 
 mat4::mat4(float x)
-	: data{vec4(x, 0.0f, 0.0f, 0.0f), vec4(0.0f, x, 0.0f, 0.0f), vec4(0.0f, 0.0f, x, 0.0f), vec4(0.0f, 0.0f, 0.0f, x)} {
-	  };
+{
+	data[0] = x;
+	data[1] = 0.0f;
+	data[2] = 0.0f;
+	data[3] = 0.0f;
+	data[4] = 0.0f;
+	data[5] = x;
+	data[6] = 0.0f;
+	data[7] = 0.0f;
+	data[8] = 0.0f;
+	data[9] = 0.0f;
+	data[10] = x;
+	data[11] = 0.0f;
+	data[12] = 0.0f;
+	data[13] = 0.0f;
+	data[14] = 0.0f;
+	data[15] = x;
+}
 
-mat4::mat4(const vec4 &c1, const vec4 &c2, const vec4 &c3, const vec4 &c4) : data{c1, c2, c3, c4} {};
+mat4::mat4(const vec4 &v1, const vec4 &v2, const vec4 &v3, const vec4 &v4)
+{
+	for (int32_t i = 0; i < 4; ++i)
+	{
+		data[i] = v1[i];
+		data[4 + i] = v2[i];
+		data[8 + i] = v3[i];
+		data[12 + i] = v4[i];
+	}
+}
+
+mat4::mat4(float f0, float f1, float f2, float f3, float f4, float f5, float f6, float f7, float f8, float f9,
+		   float f10, float f11, float f12, float f13, float f14, float f15)
+{
+	data[0] = f0;
+	data[1] = f1;
+	data[2] = f2;
+	data[3] = f3;
+	data[4] = f4;
+	data[5] = f5;
+	data[6] = f6;
+	data[7] = f7;
+	data[8] = f8;
+	data[9] = f9;
+	data[10] = f10;
+	data[11] = f11;
+	data[12] = f12;
+	data[13] = f13;
+	data[14] = f14;
+	data[15] = f15;
+}
 
 mat4::mat4(const mat4 &copy)
 {
-	for (int i = 0; i < 4; i++)
+	for (int32_t i = 0; i < 16; i++)
 	{
-		(*this)[i] = copy[i];
+		data[i] = copy.data[i];
 	}
+}
+
+mat4::mat4(const quat &quat)
+{
+	(*this)[0][0] = 1.0f - 2.0f * quat.y * quat.y - 2.0f * quat.z * quat.z;
+	(*this)[1][0] = 2.0f * quat.x * quat.y - 2.0f * quat.w * quat.z;
+	(*this)[2][0] = 2.0f * quat.x * quat.z + 2.0f * quat.w * quat.y;
+	(*this)[3][0] = 0.0f;
+
+	(*this)[0][1] = 2.0f * quat.x * quat.y + 2.0f * quat.w * quat.z;
+	(*this)[1][1] = 1.0f - 2.0f * quat.x * quat.x - 2.0f * quat.z * quat.z;
+	(*this)[2][1] = 2.0f * quat.y * quat.z - 2.0f * quat.w * quat.x;
+	(*this)[3][1] = 0.0f;
+
+	(*this)[0][2] = 2.0f * quat.x * quat.z - 2.0f * quat.w * quat.y;
+	(*this)[1][2] = 2.0f * quat.y * quat.z + 2.0f * quat.w * quat.x;
+	(*this)[2][2] = 1.0f - 2.0f * quat.x * quat.x - 2.0f * quat.y * quat.y;
+	(*this)[3][2] = 0.0f;
+
+	(*this)[0][3] = 0.0f;
+	(*this)[1][3] = 0.0f;
+	(*this)[2][3] = 0.0f;
+	(*this)[3][3] = 1.0f;
 }
 
 mat4 &mat4::operator=(const mat4 &copy)
 {
-	for (int i = 0; i < 4; i++)
+	for (int32_t i = 0; i < 16; i++)
 	{
-		(*this)[i] = copy[i];
+		data[i] = copy.data[i];
 	}
 	return *this;
 }
 
 mat4 mat4::operator+(const mat4 &rhs) const
 {
-	return mat4(vec4((*this)[0] + rhs[0]), vec4((*this)[1] + rhs[1]), vec4((*this)[2] + rhs[2]),
-				vec4((*this)[3] + rhs[3]));
+	mat4 ret;
+
+	for (int32_t i = 0; i < 16; ++i)
+	{
+		ret.data[i] = data[i] + rhs.data[i];
+	}
+
+	return ret;
 }
 
 mat4 mat4::operator-(const mat4 &rhs) const
 {
-	return mat4(vec4((*this)[0] - rhs[0]), vec4((*this)[1] - rhs[1]), vec4((*this)[2] - rhs[2]),
-				vec4((*this)[3] - rhs[3]));
+	mat4 ret;
+
+	for (int32_t i = 0; i < 16; ++i)
+	{
+		ret.data[i] = data[i] - rhs.data[i];
+	}
+
+	return ret;
 }
 
 mat4 mat4::operator*(const mat4 &rhs) const
 {
-	mat4 ret(0.0f);
-	for (int i = 0; i < 4; i++)
+	mat4 ret;
+
+	for (int32_t i = 0; i < 16; ++i)
 	{
-		ret[i] = (*this) * rhs[i];
+		ret.data[i] = data[i] * rhs.data[i];
 	}
+
 	return ret;
 }
 
-vec4 &mat4::operator[](int idx)
+float *mat3::operator[](int idx)
 {
-	if (0 <= idx && idx < 4)
-		return this->data[idx];
-	throw std::out_of_range("Index out of range");
+	return &data[idx * 4];
 }
 
-vec4 mat4::operator[](int idx) const
+const float *mat3::operator[](int idx) const
 {
-	if (0 <= idx && idx < 4)
-		return this->data[idx];
-	throw std::out_of_range("Index out of range");
+	return &data[idx * 4];
 }
 
 // non-member function
 
 mat4 operator*(float scalar, const mat4 &matrix)
 {
-	return mat4({scalar * matrix[0], scalar * matrix[1], scalar * matrix[2], scalar * matrix[3]});
+	mat4 ret;
+
+	for (int32_t i = 0; i < 16; ++i)
+	{
+		ret.data[i] = scalar * matrix.data[i];
+	}
+
+	return ret;
 }
 
 mat4 operator*(const mat4 &matrix, float scalar)
 {
-	return mat4({scalar * matrix[0], scalar * matrix[1], scalar * matrix[2], scalar * matrix[3]});
+	mat4 ret;
+
+	for (int32_t i = 0; i < 16; ++i)
+	{
+		ret.data[i] = scalar * matrix.data[i];
+	}
+
+	return ret;
 }
 
 float *value_ptr(mat4 &matrix)
@@ -135,7 +243,7 @@ mat4 inverse(const mat4 &matrix)
 
 	vec4 row0(inverse[0][0], inverse[1][0], inverse[2][0], inverse[3][0]);
 
-	vec4 dot0(matrix[0] * row0);
+	vec4 dot0((*matrix[0]) * row0);
 	float det = (dot0.x + dot0.y) + (dot0.z + dot0.w);
 
 	float oneOverDeterminant = 1.0f / det;
@@ -188,7 +296,7 @@ mat4 lookAt(const vec3 &cameraPos, const vec3 &cameraTarget, const vec3 &cameraU
 	return inverse(matrix);
 }
 
-mat4 mat4_cast(const quat &quat)
+mat4 toMat4(const quat &quat)
 {
 	mat4 rotate(1.0f);
 
@@ -205,6 +313,145 @@ mat4 mat4_cast(const quat &quat)
 	rotate[2][2] = 1.0f - 2.0f * quat.x * quat.x - 2.0f * quat.y * quat.y;
 
 	return rotate;
+}
+
+mat4 ortho(float left, float right, float bottom, float top, float zNear, float zFar)
+{
+	mat4 result(1.0f);
+
+	result[0][0] = 2.0f / (right - left);
+	result[1][1] = 2.0f / (top - bottom);
+	result[2][2] = -2.0f / (zFar - zNear);
+
+	result[3][0] = -(right + left) / (right - left);
+	result[3][1] = -(top + bottom) / (top - bottom);
+	result[3][2] = -(zFar + zNear) / (zFar - zNear);
+	result[3][3] = 1.0f;
+
+	return result;
+}
+
+bool decompose(const mat4 &modelMatrix, vec3 &translation, quat &rotation, vec3 &scale, vec3 &skew, vec4 &perspective)
+{
+	mat4 localMatrix = modelMatrix;
+
+	if (abs(localMatrix[3][3]) < std::numeric_limits<float>::epsilon())
+	{
+		return false; // 분해 실패
+	}
+
+	for (int i = 0; i < 4; i++)
+	{
+		for (int j = 0; j < 4; j++)
+		{
+			localMatrix[i][j] /= localMatrix[3][3];
+		}
+	}
+
+	translation.x = localMatrix[3][0];
+	translation.y = localMatrix[3][1];
+	translation.z = localMatrix[3][2];
+
+	perspective.x = localMatrix[3][0];
+	perspective.y = localMatrix[3][1];
+	perspective.z = localMatrix[3][2];
+	perspective.w = localMatrix[3][3];
+
+	localMatrix[3][0] = 0.0f;
+	localMatrix[3][1] = 0.0f;
+	localMatrix[3][2] = 0.0f;
+	localMatrix[3][3] = 1.0f;
+
+	for (int i = 0; i < 3; i++)
+	{
+		vec3 tmp(localMatrix[i][0], localMatrix[i][1], localMatrix[i][2]);
+		scale[i] = length(tmp);
+		localMatrix[i][0] = tmp.x / scale[i];
+		localMatrix[i][1] = tmp.y / scale[i];
+		localMatrix[i][2] = tmp.z / scale[i];
+		localMatrix[i][3] = 0.0f;
+	}
+
+	vec3 col1(localMatrix[0][0], localMatrix[0][1], localMatrix[0][2]);
+	vec3 col2(localMatrix[1][0], localMatrix[1][1], localMatrix[1][2]);
+	vec3 col3(localMatrix[2][0], localMatrix[2][1], localMatrix[2][2]);
+	skew.x = dot(col1, col2);
+	skew.y = dot(col1, col3);
+	skew.z = dot(col2, col3);
+
+	rotation = quat_cast(localMatrix);
+
+	return true;
+}
+
+quat quat_cast(const mat3 &matrix)
+{
+	float trace = matrix[0][0] + matrix[1][1] + matrix[2][2];
+	quat q;
+
+	if (trace > 0.0f)
+	{
+		float s = 0.5f / std::sqrt(trace + 1.0f);
+		q.w = 0.25f / s;
+		q.x = (matrix[2][1] - matrix[1][2]) * s;
+		q.y = (matrix[0][2] - matrix[2][0]) * s;
+		q.z = (matrix[1][0] - matrix[0][1]) * s;
+	}
+	else
+	{
+		if (matrix[0][0] > matrix[1][1] && matrix[0][0] > matrix[2][2])
+		{
+			float s = 2.0f * std::sqrt(1.0f + matrix[0][0] - matrix[1][1] - matrix[2][2]);
+			q.w = (matrix[2][1] - matrix[1][2]) / s;
+			q.x = 0.25f * s;
+			q.y = (matrix[0][1] + matrix[1][0]) / s;
+			q.z = (matrix[0][2] + matrix[2][0]) / s;
+		}
+		else if (matrix[1][1] > matrix[2][2])
+		{
+			float s = 2.0f * std::sqrt(1.0f + matrix[1][1] - matrix[0][0] - matrix[2][2]);
+			q.w = (matrix[0][2] - matrix[2][0]) / s;
+			q.x = (matrix[0][1] + matrix[1][0]) / s;
+			q.y = 0.25f * s;
+			q.z = (matrix[1][2] + matrix[2][1]) / s;
+		}
+		else
+		{
+			float s = 2.0f * std::sqrt(1.0f + matrix[2][2] - matrix[0][0] - matrix[1][1]);
+			q.w = (matrix[1][0] - matrix[0][1]) / s;
+			q.x = (matrix[0][2] + matrix[2][0]) / s;
+			q.y = (matrix[1][2] + matrix[2][1]) / s;
+			q.z = 0.25f * s;
+		}
+	}
+
+	return normalize(q);
+}
+
+vec3 eulerAngles(const quat &q)
+{
+	vec3 angles;
+
+	float sinrCosp = 2.0f * (q.w * q.x + q.y * q.z);
+	float cosrCosp = 1.0f - 2.0f * (q.x * q.x + q.y * q.y);
+	angles.x = std::atan2(sinrCosp, cosrCosp);
+
+	float sinp = 2.0f * (q.w * q.y - q.z * q.x);
+	if (std::abs(sinp) >= 1.0f)
+	{
+		angles.y = std::copysign(pi<float>() / 2.0f, sinp);
+	}
+	else
+	{
+		angles.y = std::asin(sinp);
+	}
+
+	// Yaw (z-axis rotation)
+	float sinyCosp = 2.0f * (q.w * q.z + q.x * q.y);
+	float cosyCosp = 1.0f - 2.0f * (q.y * q.y + q.z * q.z);
+	angles.z = std::atan2(sinyCosp, cosyCosp);
+
+	return angles;
 }
 
 } // namespace alglm

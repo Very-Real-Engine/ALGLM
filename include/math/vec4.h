@@ -1,19 +1,16 @@
 #pragma once
 
 #include <cmath>
-#include <stdexcept>
+#include <cstdint>
 
 namespace alglm
 {
-class mat4;
+struct mat4;
+struct vec3;
 
-class vec4
+struct vec4
 {
-  public:
-	float x;
-	float y;
-	float z;
-	float w;
+	float x, y, z, w;
 
 	vec4();
 	vec4(float x);
@@ -28,14 +25,31 @@ class vec4
 	float operator[](int idx) const;
 };
 
+vec4 mix(const vec4& x, const vec4& y, float a);
+vec4 normalize(const vec4 &vector);
 vec4 operator*(float scalar, const vec4 &vector);
 vec4 operator*(const vec4 &vector, float scalar);
 vec4 operator*(const mat4 &matrix, const vec4 &vector);
 
+float dot(const vec4 &vector1, const vec4 &vector2);
+float length(const vec4 &vector);
+float length2(const vec4 &vector);
 float *value_ptr(vec4 &vector);
 
-float dot(const vec4 &vector1, const vec4 &vector2);
-vec4 normalize(const vec4 &vector);
 
+
+struct ivec4
+{
+	int32_t x, y, z, w;
+
+	ivec4();
+	ivec4(int32_t x);
+	ivec4(int32_t x, int32_t y, int32_t z, int32_t w);
+	ivec4(const ivec4 &copy);
+	ivec4 &operator=(const ivec4 &copy);
+	ivec4 operator+(const ivec4 &rhs) const;
+	ivec4 operator-(const ivec4 &rhs) const;
+	ivec4 operator*(const ivec4 &rhs) const;
+};
 
 } // namespace alglm
