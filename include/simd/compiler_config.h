@@ -6,6 +6,8 @@
     // MSVC에서는 강제 인라인: __forceinline
     #define FORCE_INLINE __forceinline
     // MSVC에서는 alignas 대신 __declspec(align(N)) 사용
+    #define ALIGN4 __declspec(align(4))
+    #define ALIGN8 __declspec(align(8))
     #define ALIGN16 __declspec(align(16))
     #define ALIGN32 __declspec(align(32))
     #define ALIGN64 __declspec(align(64))
