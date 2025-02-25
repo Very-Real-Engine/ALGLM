@@ -1,12 +1,12 @@
 #pragma once
 
-#include "../math/math_utils.h"
-#include "../math/vec2.h"
-#include "../math/vec3.h"
-#include "../math/vec4.h"
-#include "../math/mat3.h"
-#include "../math/mat4.h"
-#include "../math/quat.h"
+#include "../scalar/math_utils.h"
+#include "../scalar/vec2.h"
+#include "../scalar/vec3.h"
+#include "../scalar/vec4.h"
+#include "../scalar/mat3.h"
+#include "../scalar/mat4.h"
+#include "../scalar/quat.h"
 
 namespace alglm
 {

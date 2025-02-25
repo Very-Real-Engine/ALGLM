@@ -1,4 +1,4 @@
-#include "../include/alglm.h"
+#include "../../include/alglm.h"
 
 namespace alglm
 {
@@ -15,7 +15,7 @@ float degrees(float radian)
 
 float abs(float value)
 {
-	return (value < 0 ? -value : value);
+	return std::abs(value < 0 ? -value : value);
 }
 
 float clamp(float x, float minVal, float maxVal)
@@ -40,7 +40,8 @@ float mix(float x, float y, float a)
 
 vec3 mix(const vec3 &x, const vec3 &y, float a)
 {
-	return x * (1.0f - a) + y * a;
+	float invA = 1.0f - a;
+	return vec3(x.x * invA + y.x * a, x.y * invA + y.y * a, x.z * invA + y.z * a);
 }
 
 } // namespace alglm

@@ -1,4 +1,4 @@
-#include "../include/alglm.h"
+#include "../../include/alglm.h"
 
 namespace alglm
 {
