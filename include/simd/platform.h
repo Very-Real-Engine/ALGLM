@@ -8,5 +8,6 @@
 // #else
 //     #include "simd_scalar.h"
 // #endif
+// #include "simd_scalar.h"
 
 #endif // PLATFORM_H

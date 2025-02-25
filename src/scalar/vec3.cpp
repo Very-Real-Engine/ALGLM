@@ -151,4 +151,26 @@ vec3 max(const vec3 &v1, const vec3 &v2)
 	return ret;
 }
 
+vec3 &vec3::operator-=(const vec3 &rhs)
+{
+	x -= rhs.x;
+	y -= rhs.y;
+	z -= rhs.z;
+    return *this;
+}
+
+vec3 &vec3::operator+=(const vec3 &rhs)
+{
+	x += rhs.x;
+	y += rhs.y;
+	z += rhs.z;
+    return *this;
+}
+
+vec3 vec3::operator-() const
+{
+	return vec3(-x, -y, -z);
+}
+
+
 } // namespace alglm

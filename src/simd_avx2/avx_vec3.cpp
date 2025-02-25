@@ -201,4 +201,32 @@ vec3 max(const vec3 &v1, const vec3 &v2)
 	return ret;
 }
 
+vec3 &vec3::operator+=(const vec3 &rhs)
+{
+	__m128 a = _mm_load_ps(reinterpret_cast<const float *>(this));
+	__m128 b = _mm_load_ps(reinterpret_cast<const float *>(&rhs));
+	__m128 sum = _mm_add_ps(a, b);
+	_mm_store_ps(reinterpret_cast<float *>(this), sum);
+	return *this;
+}
+
+vec3 &vec3::operator-=(const vec3 &rhs)
+{
+	__m128 a = _mm_load_ps(reinterpret_cast<const float *>(this));
+	__m128 b = _mm_load_ps(reinterpret_cast<const float *>(&rhs));
+	__m128 diff = _mm_sub_ps(a, b);
+	_mm_store_ps(reinterpret_cast<float *>(this), diff);
+	return *this;
+}
+
+vec3 vec3::operator-() const
+{
+	__m128 v = _mm_load_ps(reinterpret_cast<const float *>(this));
+	__m128 neg = _mm_set1_ps(-1.0f);
+	__m128 result = _mm_mul_ps(v, neg);
+	vec3 ret;
+	_mm_store_ps(reinterpret_cast<float *>(&ret), result);
+	return ret;
+}
+
 } // namespace alglm

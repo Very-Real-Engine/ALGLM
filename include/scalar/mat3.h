@@ -22,6 +22,8 @@ struct mat3
 	mat3 &operator=(const mat3 &copy);
 	mat3 operator+(const mat3 &rhs) const;
 	mat3 operator-(const mat3 &rhs) const;
+	mat3 &operator-=(const mat3 &rhs);
+	mat3 &operator+=(const mat3 &rhs);
 	mat3 operator*(const mat3 &rhs) const;
 	float *operator[](int idx);
 	const float *operator[](int idx) const;
@@ -29,6 +31,7 @@ struct mat3
 
 mat3 operator*(float scalar, const mat3 &matrix);
 mat3 operator*(const mat3 &matrix, float scalar);
+vec3 operator*(const mat3 &matrix, const vec3 &v);
 mat3 inverse(const mat3 &matrix);
 mat3 transpose(const mat3 &matrix);
 float *value_ptr(mat3 &matrix);

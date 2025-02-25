@@ -2,7 +2,7 @@
 
 namespace alglm
 {
-	
+
 // member function
 mat3::mat3()
 {
@@ -197,6 +197,13 @@ float determinant(const mat3 &m)
 {
 	return m[0][0] * (m[1][1] * m[2][2] - m[2][1] * m[1][2]) - m[1][0] * (m[0][1] * m[2][2] - m[2][1] * m[0][2]) +
 		   m[2][0] * (m[0][1] * m[1][2] - m[1][1] * m[0][2]);
+}
+
+vec3 operator*(const mat3 &matrix, const vec3 &v)
+{
+	return vec3(v.x * matrix[0][0] + v.y * matrix[1][0] + v.z * matrix[2][0],
+				v.x * matrix[0][1] + v.y * matrix[1][1] + v.z * matrix[2][1],
+				v.x * matrix[0][2] + v.y * matrix[1][2] + v.z * matrix[2][2]);
 }
 
 } // namespace alglm

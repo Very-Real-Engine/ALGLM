@@ -214,4 +214,21 @@ float determinant(const mat3 &m)
 		   m[2][0] * (m[0][1] * m[1][2] - m[1][1] * m[0][2]);
 }
 
+vec3 operator*(const mat3 &matrix, const vec3 &v)
+{
+    __m128 x = _mm_set1_ps(v.x); 
+    __m128 y = _mm_set1_ps(v.y);
+    __m128 z = _mm_set1_ps(v.z);
+
+    __m128 col0 = _mm_load_ps(matrix[0]);
+    __m128 col1 = _mm_load_ps(matrix[1]);
+    __m128 col2 = _mm_load_ps(matrix[2]);
+
+    __m128 sum = _mm_add_ps(_mm_add_ps(_mm_mul_ps(x, col0), _mm_mul_ps(y, col1)), _mm_mul_ps(z, col2));
+
+    float result[4];
+    _mm_storeu_ps(result, sum);
+    return vec3(result[0], result[1], result[2]);
+}
+
 } // namespace alglm

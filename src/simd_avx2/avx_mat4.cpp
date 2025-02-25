@@ -120,54 +120,64 @@ mat4 &mat4::operator=(const mat4 &copy)
 mat4 mat4::operator+(const mat4 &rhs) const
 {
 	mat4 ret;
-
-	for (int32_t i = 0; i < 16; ++i)
+	for (int i = 0; i < 4; i++)
 	{
-		ret.data[i] = data[i] + rhs.data[i];
+		__m128 a = _mm_load_ps(&data[i * 4]);
+		__m128 b = _mm_load_ps(&rhs.data[i * 4]);
+		__m128 r = _mm_add_ps(a, b);
+		_mm_store_ps(&ret.data[i * 4], r);
 	}
-
 	return ret;
 }
 
 mat4 mat4::operator-(const mat4 &rhs) const
 {
 	mat4 ret;
-
-	for (int32_t i = 0; i < 16; ++i)
+	for (int i = 0; i < 4; i++)
 	{
-		ret.data[i] = data[i] - rhs.data[i];
+		__m128 a = _mm_load_ps(&data[i * 4]);
+		__m128 b = _mm_load_ps(&rhs.data[i * 4]);
+		__m128 r = _mm_sub_ps(a, b);
+		_mm_store_ps(&ret.data[i * 4], r);
 	}
-
 	return ret;
 }
 
 mat4 mat4::operator*(const mat4 &rhs) const
 {
 	mat4 ret;
-
-	ret[0][0] = data[0] * rhs.data[0] + data[4] * rhs.data[1] + data[8] * rhs.data[2] + data[12] * rhs.data[3];
-	ret[0][1] = data[1] * rhs.data[0] + data[5] * rhs.data[1] + data[9] * rhs.data[2] + data[13] * rhs.data[3];
-	ret[0][2] = data[2] * rhs.data[0] + data[6] * rhs.data[1] + data[10] * rhs.data[2] + data[14] * rhs.data[3];
-	ret[0][3] = data[3] * rhs.data[0] + data[7] * rhs.data[1] + data[11] * rhs.data[2] + data[15] * rhs.data[3];
-
-	ret[1][0] = data[0] * rhs.data[4] + data[4] * rhs.data[5] + data[8] * rhs.data[6] + data[12] * rhs.data[7];
-	ret[1][1] = data[1] * rhs.data[4] + data[5] * rhs.data[5] + data[9] * rhs.data[6] + data[13] * rhs.data[7];
-	ret[1][2] = data[2] * rhs.data[4] + data[6] * rhs.data[5] + data[10] * rhs.data[6] + data[14] * rhs.data[7];
-	ret[1][3] = data[3] * rhs.data[4] + data[7] * rhs.data[5] + data[11] * rhs.data[6] + data[15] * rhs.data[7];
-
-	ret[2][0] = data[0] * rhs.data[8] + data[4] * rhs.data[9] + data[8] * rhs.data[10] + data[12] * rhs.data[11];
-	ret[2][1] = data[1] * rhs.data[8] + data[5] * rhs.data[9] + data[9] * rhs.data[10] + data[13] * rhs.data[11];
-	ret[2][2] = data[2] * rhs.data[8] + data[6] * rhs.data[9] + data[10] * rhs.data[10] + data[14] * rhs.data[11];
-	ret[2][3] = data[3] * rhs.data[8] + data[7] * rhs.data[9] + data[11] * rhs.data[10] + data[15] * rhs.data[11];
-
-	ret[3][0] = data[0] * rhs.data[12] + data[4] * rhs.data[13] + data[8] * rhs.data[14] + data[12] * rhs.data[15];
-	ret[3][1] = data[1] * rhs.data[12] + data[5] * rhs.data[13] + data[9] * rhs.data[14] + data[13] * rhs.data[15];
-	ret[3][2] = data[2] * rhs.data[12] + data[6] * rhs.data[13] + data[10] * rhs.data[14] + data[14] * rhs.data[15];
-	ret[3][3] = data[3] * rhs.data[12] + data[7] * rhs.data[13] + data[11] * rhs.data[14] + data[15] * rhs.data[15];
-
+	// for each column j of result
+	for (int j = 0; j < 4; j++)
+	{
+		// Load B's j-th column (since mat4 is column-major, it's stored contiguously)
+		__m128 b = _mm_load_ps(&rhs.data[j * 4]); // b = [ b0, b1, b2, b3 ]
+		__m128 result = _mm_setzero_ps();
+		// Unroll inner loop manually for k = 0..3:
+		{
+			__m128 col0 = _mm_load_ps(&data[0]); // A.col(0)
+			__m128 b0 = _mm_shuffle_ps(b, b, _MM_SHUFFLE(0, 0, 0, 0));
+			result = _mm_add_ps(result, _mm_mul_ps(col0, b0));
+		}
+		{
+			__m128 col1 = _mm_load_ps(&data[4]); // A.col(1)
+			__m128 b1 = _mm_shuffle_ps(b, b, _MM_SHUFFLE(1, 1, 1, 1));
+			result = _mm_add_ps(result, _mm_mul_ps(col1, b1));
+		}
+		{
+			__m128 col2 = _mm_load_ps(&data[8]); // A.col(2)
+			__m128 b2 = _mm_shuffle_ps(b, b, _MM_SHUFFLE(2, 2, 2, 2));
+			result = _mm_add_ps(result, _mm_mul_ps(col2, b2));
+		}
+		{
+			__m128 col3 = _mm_load_ps(&data[12]); // A.col(3)
+			__m128 b3 = _mm_shuffle_ps(b, b, _MM_SHUFFLE(3, 3, 3, 3));
+			result = _mm_add_ps(result, _mm_mul_ps(col3, b3));
+		}
+		// Store the computed column into result matrix.
+		_mm_store_ps(&ret.data[j * 4], result);
+	}
 	return ret;
 }
-
 float *mat4::operator[](int idx)
 {
 	return &data[idx * 4];
@@ -183,24 +193,26 @@ const float *mat4::operator[](int idx) const
 mat4 operator*(float scalar, const mat4 &matrix)
 {
 	mat4 ret;
-
-	for (int32_t i = 0; i < 16; ++i)
+	__m128 s = _mm_set1_ps(scalar);
+	for (int i = 0; i < 4; i++)
 	{
-		ret.data[i] = scalar * matrix.data[i];
+		__m128 m = _mm_load_ps(&matrix.data[i * 4]);
+		__m128 r = _mm_mul_ps(m, s);
+		_mm_store_ps(&ret.data[i * 4], r);
 	}
-
 	return ret;
 }
 
 mat4 operator*(const mat4 &matrix, float scalar)
 {
 	mat4 ret;
-
-	for (int32_t i = 0; i < 16; ++i)
+	__m128 s = _mm_set1_ps(scalar);
+	for (int i = 0; i < 4; i++)
 	{
-		ret.data[i] = scalar * matrix.data[i];
+		__m128 m = _mm_load_ps(&matrix.data[i * 4]);
+		__m128 r = _mm_mul_ps(m, s);
+		_mm_store_ps(&ret.data[i * 4], r);
 	}
-
 	return ret;
 }
 
@@ -214,7 +226,7 @@ mat4 inverse(const mat4 &matrix)
 	float coef00 = matrix[2][2] * matrix[3][3] - matrix[3][2] * matrix[2][3];
 	float coef02 = matrix[1][2] * matrix[3][3] - matrix[3][2] * matrix[1][3];
 	float coef03 = matrix[1][2] * matrix[2][3] - matrix[2][2] * matrix[1][3];
-	
+
 	float coef04 = matrix[2][1] * matrix[3][3] - matrix[3][1] * matrix[2][3];
 	float coef06 = matrix[1][1] * matrix[3][3] - matrix[3][1] * matrix[1][3];
 	float coef07 = matrix[1][1] * matrix[2][3] - matrix[2][1] * matrix[1][3];
@@ -222,7 +234,7 @@ mat4 inverse(const mat4 &matrix)
 	float coef08 = matrix[2][1] * matrix[3][2] - matrix[3][1] * matrix[2][2];
 	float coef10 = matrix[1][1] * matrix[3][2] - matrix[3][1] * matrix[1][2];
 	float coef11 = matrix[1][1] * matrix[2][2] - matrix[2][1] * matrix[1][2];
-	
+
 	float coef12 = matrix[2][0] * matrix[3][3] - matrix[3][0] * matrix[2][3];
 	float coef14 = matrix[1][0] * matrix[3][3] - matrix[3][0] * matrix[1][3];
 	float coef15 = matrix[1][0] * matrix[2][3] - matrix[2][0] * matrix[1][3];
@@ -403,7 +415,7 @@ bool decompose(const mat4 &modelMatrix, vec3 &scale, quat &rotation, vec3 &trans
 
 		mat4 inversePerspectiveMatrix = inverse(perspectiveMatrix);
 		mat4 transposedInversePerspectiveMatrix = transpose(inversePerspectiveMatrix);
-		
+
 		perspective = transposedInversePerspectiveMatrix * rhs;
 
 		localMatrix[0][3] = localMatrix[1][3] = localMatrix[2][3] = 0.0f;
@@ -513,25 +525,42 @@ quat quat_cast(const mat3 &matrix)
 	float bigValue = sqrt(v + 1.0f) * 0.5f;
 	float mult = 0.25f / bigValue;
 
-	switch(bigIdx)
+	switch (bigIdx)
 	{
-		case 0:
-			return quat(bigValue, (matrix[1][2] - matrix[2][1]) * mult, (matrix[2][0] - matrix[0][2]) * mult, (matrix[0][1] - matrix[1][0]) * mult);
-		case 1:
-			return quat((matrix[1][2] - matrix[2][1]) * mult, bigValue, (matrix[0][1] + matrix[1][0]) * mult, (matrix[2][0] + matrix[0][2]) * mult);
-		case 2:
-			return quat((matrix[2][0] - matrix[0][2]) * mult, (matrix[0][1] + matrix[1][0]) * mult, bigValue, (matrix[1][2] + matrix[2][1]) * mult);
-		case 3:
-			return quat((matrix[0][1] - matrix[1][0]) * mult, (matrix[2][0] + matrix[0][2]) * mult, (matrix[1][2] + matrix[2][1]) * mult, bigValue);
-		default:
-			return quat(1, 0, 0, 0);
+	case 0:
+		return quat(bigValue, (matrix[1][2] - matrix[2][1]) * mult, (matrix[2][0] - matrix[0][2]) * mult,
+					(matrix[0][1] - matrix[1][0]) * mult);
+	case 1:
+		return quat((matrix[1][2] - matrix[2][1]) * mult, bigValue, (matrix[0][1] + matrix[1][0]) * mult,
+					(matrix[2][0] + matrix[0][2]) * mult);
+	case 2:
+		return quat((matrix[2][0] - matrix[0][2]) * mult, (matrix[0][1] + matrix[1][0]) * mult, bigValue,
+					(matrix[1][2] + matrix[2][1]) * mult);
+	case 3:
+		return quat((matrix[0][1] - matrix[1][0]) * mult, (matrix[2][0] + matrix[0][2]) * mult,
+					(matrix[1][2] + matrix[2][1]) * mult, bigValue);
+	default:
+		return quat(1, 0, 0, 0);
 	}
 }
 
 mat4 transpose(const mat4 &matrix)
 {
-	return mat4(matrix[0][0], matrix[1][0], matrix[2][0], matrix[3][0], matrix[0][1], matrix[1][1], matrix[2][1],
-				matrix[3][1], matrix[0][2], matrix[1][2], matrix[2][2], matrix[3][2], matrix[0][3], matrix[1][3],
-				matrix[2][3], matrix[3][3]);
+	mat4 ret;
+	__m128 col0 = _mm_load_ps(&matrix.data[0]);	 // Column 0
+	__m128 col1 = _mm_load_ps(&matrix.data[4]);	 // Column 1
+	__m128 col2 = _mm_load_ps(&matrix.data[8]);	 // Column 2
+	__m128 col3 = _mm_load_ps(&matrix.data[12]); // Column 3
+
+	// Transpose 4x4 matrix:
+	_MM_TRANSPOSE4_PS(col0, col1, col2, col3);
+
+	// 결과는 row0, row1, row2, row3가 col0~col3에 저장됨.
+	// (전치된 행렬을 열‑우선 형식으로 저장하려면 그대로 저장)
+	_mm_store_ps(&ret.data[0], col0);
+	_mm_store_ps(&ret.data[4], col1);
+	_mm_store_ps(&ret.data[8], col2);
+	_mm_store_ps(&ret.data[12], col3);
+	return ret;
 }
 } // namespace alglm

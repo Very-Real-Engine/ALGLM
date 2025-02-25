@@ -23,103 +23,54 @@ quat &quat::operator=(const quat &copy)
 
 quat::quat(const vec3 &eulerAngle)
 {
-	vec3 half = eulerAngle * 0.5f;
+    vec3 half = eulerAngle * 0.5f;
 
-	vec3 c(std::cos(half.x), std::cos(half.y), std::cos(half.z));
-	vec3 s(std::sin(half.x), std::sin(half.y), std::sin(half.z));
+    vec3 c(std::cos(half.x), std::cos(half.y), std::cos(half.z));
+    vec3 s(std::sin(half.x), std::sin(half.y), std::sin(half.z));
 
-	this->w = c.x * c.y * c.z + s.x * s.y * s.z;
-	this->x = s.x * c.y * c.z - c.x * s.y * s.z;
-	this->y = c.x * s.y * c.z + s.x * c.y * s.z;
-	this->z = c.x * c.y * s.z - s.x * s.y * c.z;
+    this->w = c.x * c.y * c.z + s.x * s.y * s.z;
+    this->x = s.x * c.y * c.z - c.x * s.y * s.z;
+    this->y = c.x * s.y * c.z + s.x * c.y * s.z;
+    this->z = c.x * c.y * s.z - s.x * s.y * c.z;
 }
 
 quat quat::operator*(const quat &rhs) const
 {
-	__m128 q1 = _mm_load_ps(&this->x); // (x1, y1, z1, w1)
-	__m128 q2 = _mm_load_ps(&rhs.x);   // (x2, y2, z2, w2)
-
-	// Compute term1: q1.w * q2
-	__m128 q1_w = _mm_shuffle_ps(q1, q1, _MM_SHUFFLE(3, 3, 3, 3)); // (w1, w1, w1, w1)
-	__m128 term1 = _mm_mul_ps(q1_w, q2);						   // (w1*x2, w1*y2, w1*z2, w1*w2)
-
-	// Compute term2: q2.w * q1
-	__m128 q2_w = _mm_shuffle_ps(q2, q2, _MM_SHUFFLE(3, 3, 3, 3)); // (w2, w2, w2, w2)
-	__m128 term2 = _mm_mul_ps(q2_w, q1);						   // (w2*x1, w2*y1, w2*z1, w2*w1)
-
-	// Compute cross product for the vector part:
-	// cross(q1.xyz, q2.xyz) = (q1.y*q2.z - q1.z*q2.y,
-	//                           q1.z*q2.x - q1.x*q2.z,
-	//                           q1.x*q2.y - q1.y*q2.x)
-	__m128 q1_yzx = _mm_shuffle_ps(q1, q1, _MM_SHUFFLE(3, 0, 2, 1)); // (y1, z1, x1, w1)
-	__m128 q2_zxy = _mm_shuffle_ps(q2, q2, _MM_SHUFFLE(3, 1, 0, 2)); // (z2, x2, y2, w2)
-	__m128 q1_zxy = _mm_shuffle_ps(q1, q1, _MM_SHUFFLE(3, 1, 0, 2)); // (z1, x1, y1, w1)
-	__m128 q2_yzx = _mm_shuffle_ps(q2, q2, _MM_SHUFFLE(3, 0, 2, 1)); // (y2, z2, x2, w2)
-	__m128 cross = _mm_sub_ps(_mm_mul_ps(q1_yzx, q2_zxy), _mm_mul_ps(q1_zxy, q2_yzx));
-
-	// Compute xyz part: term1_xyz + term2_xyz + cross.
-	__m128 xyz = _mm_add_ps(_mm_add_ps(term1, term2), cross);
-
-	// For the scalar part, compute: w1*w2 - dot(q1.xyz, q2.xyz)
-	// Compute dot(q1.xyz, q2.xyz) using _mm_dp_ps with mask 0x71.
-	__m128 dp = _mm_dp_ps(q1, q2, 0x71);
-	float dot_xyz = _mm_cvtss_f32(dp);
-	float w1 = this->w, w2 = rhs.w;
-	float res_w = w1 * w2 - dot_xyz;
-
-	// Store xyz into an array.
-	float result_array[4];
-	_mm_store_ps(result_array, xyz);
-	// result_array[0] = x, [1] = y, [2] = z.
-	// Construct quaternion using constructor: quat(w, x, y, z).
-	return quat(res_w, result_array[0], result_array[1], result_array[2]);
+	return quat(rhs.w * w - rhs.x * x - rhs.y * y - rhs.z * z, rhs.w * x + rhs.x * w - rhs.y * z + rhs.z * y,
+				rhs.w * y + rhs.x * z + rhs.y * w - rhs.z * x, rhs.w * z - rhs.x * y + rhs.y * x + rhs.z * w);
 }
 
 quat quat::operator+(const quat &rhs) const
 {
-	__m128 a = _mm_load_ps(&this->x);
-	__m128 b = _mm_load_ps(&rhs.x);
-	__m128 r = _mm_add_ps(a, b);
-	quat ret;
-	_mm_store_ps(&ret.x, r);
-	return ret;
+	return quat(w + rhs.w, x + rhs.x, y + rhs.y, z + rhs.z);
 }
 
 quat quat::operator-(const quat &rhs) const
 {
-	__m128 a = _mm_load_ps(&this->x);
-	__m128 b = _mm_load_ps(&rhs.x);
-	__m128 r = _mm_sub_ps(a, b);
-	quat ret;
-	_mm_store_ps(&ret.x, r);
-	return ret;
+	return quat(w - rhs.w, x - rhs.x, y - rhs.y, z - rhs.z);
 }
 
 quat normalize(const quat &q)
 {
-	__m128 a = _mm_load_ps(&q.x);
-	float len = length(q);
-	__m128 m = _mm_set1_ps(len);
-	__m128 r = _mm_div_ps(a, m);
-	quat ret;
-	_mm_store_ps(&ret.x, r);
+	quat ret(q);
+
+	float length = sqrt(q.x * q.x + q.y * q.y + q.z * q.z + q.w * q.w);
+	ret.x = ret.x / length;
+	ret.y = ret.y / length;
+	ret.z = ret.z / length;
+	ret.w = ret.w / length;
+
 	return ret;
 }
 
 float dot(const quat &q1, const quat &q2)
 {
-	__m128 a = _mm_load_ps(&q1.x);
-	__m128 b = _mm_load_ps(&q2.x);
-	__m128 dp = _mm_dp_ps(a, b, 0xFF); // sum all four components
-	return _mm_cvtss_f32(dp);
+	return q1.x * q2.x + q1.y * q2.y + q1.z * q2.z + q1.w * q2.w;
 }
 
 float length(const quat &q)
 {
-	float dp = dot(q, q);
-	__m128 d = _mm_set_ss(dp);
-	__m128 sqrtVal = _mm_sqrt_ss(d);
-	return _mm_cvtss_f32(sqrtVal);
+	return sqrt(q.x * q.x + q.y * q.y + q.z * q.z + q.w * q.w);
 }
 
 float length2(const quat &q)
@@ -137,48 +88,28 @@ quat angleAxis(float angle, const vec3 &axis)
 
 quat operator*(float a, const quat &q)
 {
-	__m128 v = _mm_load_ps(&q.x);
-	__m128 s = _mm_set1_ps(a);
-	__m128 r = _mm_mul_ps(v, s);
-	quat ret;
-	_mm_store_ps(&ret.x, r);
-	return ret;
+	return quat(a * q.w, a * q.x, a * q.y, a * q.z);
 }
 
 quat operator*(const quat &q, float a)
 {
-	__m128 v = _mm_load_ps(&q.x);
-	__m128 s = _mm_set1_ps(a);
-	__m128 r = _mm_mul_ps(v, s);
-	quat ret;
-	_mm_store_ps(&ret.x, r);
-	return ret;
+	return quat(a * q.w, a * q.x, a * q.y, a * q.z);
 }
 
 quat operator/(float a, const quat &q)
 {
-	__m128 v = _mm_load_ps(&q.x);
-	__m128 s = _mm_set1_ps(a);
-	__m128 r = _mm_div_ps(v, s);
-	quat ret;
-	_mm_store_ps(&ret.x, r);
-	return ret;
+	return quat(q.w / a, q.x / a, q.y / a, q.z / a);
 }
 
 quat operator/(const quat &q, float a)
 {
-	__m128 v = _mm_load_ps(&q.x);
-	__m128 s = _mm_set1_ps(a);
-	__m128 r = _mm_div_ps(v, s);
-	quat ret;
-	_mm_store_ps(&ret.x, r);
-	return ret;
+	return quat(q.w / a, q.x / a, q.y / a, q.z / a);
 }
 
 float getPitch(const quat &q)
 {
 	float y = 2.0f * (q.w * q.x + q.y * q.z);
-	float x = (q.w * q.w - q.x * q.x - q.y * q.y + q.z * q.z);
+    float x = (q.w * q.w - q.x * q.x - q.y * q.y + q.z * q.z);
 
 	if (abs(y - x) <= 1e-6f)
 	{
@@ -206,16 +137,16 @@ float &quat::operator[](int idx)
 {
 	switch (idx)
 	{
-	case 0:
-		return this->x;
-	case 1:
-		return this->y;
-	case 2:
-		return this->z;
-	case 3:
-		return this->w;
-	default:
-		return this->x;
+		case 0:
+			return this->x;
+		case 1:
+			return this->y;
+		case 2:
+			return this->z;
+		case 3:
+			return this->w;
+		default:
+			return this->x;
 	}
 }
 
@@ -223,16 +154,16 @@ float quat::operator[](int idx) const
 {
 	switch (idx)
 	{
-	case 0:
-		return this->x;
-	case 1:
-		return this->y;
-	case 2:
-		return this->z;
-	case 3:
-		return this->w;
-	default:
-		return this->x;
+		case 0:
+			return this->x;
+		case 1:
+			return this->y;
+		case 2:
+			return this->z;
+		case 3:
+			return this->w;
+		default:
+			return this->x;
 	}
 }
 

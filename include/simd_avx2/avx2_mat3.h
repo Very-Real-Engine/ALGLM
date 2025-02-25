@@ -30,6 +30,7 @@ struct ALIGN16 mat3
 
 mat3 operator*(float scalar, const mat3 &matrix);
 mat3 operator*(const mat3 &matrix, float scalar);
+vec3 operator*(const mat3 &matrix, const vec3 &v);
 mat3 inverse(const mat3 &matrix);
 mat3 transpose(const mat3 &matrix);
 float *value_ptr(mat3 &matrix);

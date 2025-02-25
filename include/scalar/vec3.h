@@ -21,7 +21,10 @@ struct vec3
 	vec3 &operator=(float copy);
 	vec3 operator+(const vec3 &rhs) const;
 	vec3 operator-(const vec3 &rhs) const;
+	vec3 &operator-=(const vec3 &rhs);
+	vec3 &operator+=(const vec3 &rhs);
 	vec3 operator*(const vec3 &rhs) const;
+	vec3 operator-() const;
 	float &operator[](int idx);
 	float operator[](int idx) const;
 };
