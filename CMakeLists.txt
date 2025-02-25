@@ -2,13 +2,13 @@ cmake_minimum_required(VERSION 3.20)
 project(alglm LANGUAGES CXX)
 
 add_library(alglm STATIC
-    ./src/simd_avx2/vec2.cpp
-    ./src/simd_avx2/vec3.cpp
-    ./src/simd_avx2/vec4.cpp
-    ./src/simd_avx2/mat3.cpp
-	./src/simd_avx2/mat4.cpp
-	./src/simd_avx2/quat.cpp
-	./src/simd_avx2/math_utils.cpp
+    vec2.cpp
+    vec3.cpp
+    vec4.cpp
+    mat3.cpp
+	mat4.cpp
+	quat.cpp
+	math_utils.cpp
 )
 
 # Debug 빌드 시 라이브러리 이름에 'd' 접미사를 추가합니다.
