@@ -264,4 +264,13 @@ quat slerp(const quat &x, const quat &y, float a)
 	}
 }
 
+quat &quat::operator+=(const quat &rhs)
+{
+	__m128 a = _mm_load_ps(reinterpret_cast<const float *>(&this->x));
+	__m128 b = _mm_load_ps(reinterpret_cast<const float *>(&rhs.x));
+	__m128 result = _mm_add_ps(a, b);
+	_mm_store_ps(reinterpret_cast<float *>(&this->x), result);
+	return *this;
+}
+
 } // namespace alglm

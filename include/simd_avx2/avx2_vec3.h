@@ -20,6 +20,7 @@ struct ALIGN16 vec3
 	vec3(const vec4 &copy);
 	vec3 &operator-=(const vec3 &rhs);
 	vec3 &operator+=(const vec3 &rhs);
+	vec3 &operator*=(const vec3 &rhs);
 	vec3 &operator=(const vec3 &copy);
 	vec3 &operator=(float copy);
 	vec3 operator-() const;

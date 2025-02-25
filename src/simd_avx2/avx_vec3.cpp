@@ -219,6 +219,15 @@ vec3 &vec3::operator-=(const vec3 &rhs)
 	return *this;
 }
 
+vec3 &vec3::operator*=(const vec3 &rhs)
+{
+	__m128 a = _mm_load_ps(reinterpret_cast<const float *>(this));
+	__m128 b = _mm_load_ps(reinterpret_cast<const float *>(&rhs));
+	__m128 result = _mm_mul_ps(a, b);
+	_mm_store_ps(reinterpret_cast<float *>(this), result);
+	return *this;
+}
+
 vec3 vec3::operator-() const
 {
 	__m128 v = _mm_load_ps(reinterpret_cast<const float *>(this));

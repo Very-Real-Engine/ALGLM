@@ -20,6 +20,7 @@ struct ALIGN16 quat
 	quat(const vec3 &eulerAngle);
 	quat(const quat &copy);
 	quat &operator=(const quat &copy);
+	quat &operator+=(const quat &rhs);
 	quat operator*(const quat &rhs) const;
 	quat operator+(const quat &rhs) const;
 	quat operator-(const quat &rhs) const;

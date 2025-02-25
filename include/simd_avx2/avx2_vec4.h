@@ -54,6 +54,8 @@ struct ALIGN16 ivec4
 	ivec4 operator+(const ivec4 &rhs) const;
 	ivec4 operator-(const ivec4 &rhs) const;
 	ivec4 operator*(const ivec4 &rhs) const;
+	int &operator[](int idx);
+	int operator[](int idx) const;
 };
 
 } // namespace alglm

@@ -195,4 +195,14 @@ quat slerp(const quat &x, const quat &y, float a)
 	}
 }
 
+quat &quat::operator+=(const quat &rhs)
+{
+	x += rhs.x;
+	y += rhs.y;
+	z += rhs.z;
+	w += rhs.w;
+	return *this;
+}
+
+
 } // namespace alglm

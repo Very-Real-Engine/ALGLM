@@ -19,6 +19,7 @@ struct quat
 	quat(const quat &copy);
 	quat &operator=(const quat &copy);
 	quat operator*(const quat &rhs) const;
+	quat &operator+=(const quat &rhs);
 	quat operator+(const quat &rhs) const;
 	quat operator-(const quat &rhs) const;
 	float &operator[](int idx);

@@ -162,4 +162,37 @@ ivec4 ivec4::operator*(const ivec4 &rhs) const
 	return ivec4(this->x * rhs.x, this->y * rhs.y, this->z * rhs.z, this->w * rhs.w);
 }
 
+int &ivec4::operator[](int idx)
+{
+	switch (idx)
+	{
+	case 0:
+		return this->x;
+	case 1:
+		return this->y;
+	case 2:
+		return this->z;
+	case 3:
+		return this->w;
+	default:
+		return this->x;
+	}
+}
+
+int ivec4::operator[](int idx) const
+{
+	switch (idx)
+	{
+	case 0:
+		return this->x;
+	case 1:
+		return this->y;
+	case 2:
+		return this->z;
+	case 3:
+		return this->w;
+	default:
+		return this->x;
+	}
+}
 } // namespace alglm
