@@ -2,7 +2,7 @@
 
 namespace alglm
 {
-
+	
 // member function
 mat3::mat3()
 {
@@ -53,13 +53,15 @@ mat3::mat3(const mat3 &copy)
 
 mat3::mat3(const mat4 &copy)
 {
-	for (int32_t i = 0; i < 9; i++)
-	{
-		for (int32_t j = 0; j < 9; j++)
-		{
-			data[i * 3 + j] = copy.data[i * 4 + j];
-		}
-	}
+	data[0] = copy.data[0];
+	data[1] = copy.data[1];
+	data[2] = copy.data[2];
+	data[3] = copy.data[4];
+	data[4] = copy.data[5];
+	data[5] = copy.data[6];
+	data[6] = copy.data[8];
+	data[7] = copy.data[9];
+	data[8] = copy.data[10];
 }
 
 mat3::mat3(const vec3 &v1, const vec3 &v2, const vec3 &v3)

@@ -11,7 +11,7 @@ struct vec4;
 
 struct ALIGN16 vec3
 {
-	float x, y, z;
+	float x, y, z, w;
 
 	vec3();
 	vec3(float x);

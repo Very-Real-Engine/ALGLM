@@ -4,34 +4,50 @@ namespace alglm
 {
 // member function
 
-vec2::vec2() : x(0.0f), y(0.0f) {};
+vec2::vec2() : x(0.0f), y(0.0f), z(0.0f), w(0.0f) {};
 
-vec2::vec2(float x) : x(x), y(x) {};
+vec2::vec2(float x) : x(x), y(x), z(0.0f), w(0.0f){};
 
-vec2::vec2(float x, float y) : x(x), y(y) {};
+vec2::vec2(float x, float y) : x(x), y(y), z(0.0f), w(0.0f) {};
 
-vec2::vec2(const vec2 &copy) : x(copy.x), y(copy.y) {};
+vec2::vec2(const vec2 &copy) : x(copy.x), y(copy.y), z(0.0f), w(0.0f) {};
 
 vec2 &vec2::operator=(const vec2 &copy)
 {
-	this->x = copy.x;
-	this->y = copy.y;
-	return *this;
+    __m128 a = _mm_load_ps(reinterpret_cast<const float*>(&copy));
+    _mm_store_ps(reinterpret_cast<float*>(this), a);
+    return *this;
 }
 
 vec2 vec2::operator+(const vec2 &rhs) const
 {
-	return vec2(this->x + rhs.x, this->y + rhs.y);
+	// this와 rhs를 128비트 레지스터로 로드
+	__m128 a = _mm_load_ps(reinterpret_cast<const float *>(this));
+	__m128 b = _mm_load_ps(reinterpret_cast<const float *>(&rhs));
+	__m128 r = _mm_add_ps(a, b);
+	vec2 result;
+	_mm_store_ps(reinterpret_cast<float *>(&result), r);
+	return result;
 }
 
 vec2 vec2::operator-(const vec2 &rhs) const
 {
-	return vec2(this->x - rhs.x, this->y - rhs.y);
+	__m128 a = _mm_load_ps(reinterpret_cast<const float *>(this));
+	__m128 b = _mm_load_ps(reinterpret_cast<const float *>(&rhs));
+	__m128 r = _mm_sub_ps(a, b);
+	vec2 result;
+	_mm_store_ps(reinterpret_cast<float *>(&result), r);
+	return result;
 }
 
 vec2 vec2::operator*(const vec2 &rhs) const
 {
-	return vec2(this->x * rhs.x, this->y * rhs.y);
+	__m128 a = _mm_load_ps(reinterpret_cast<const float *>(this));
+	__m128 b = _mm_load_ps(reinterpret_cast<const float *>(&rhs));
+	__m128 r = _mm_mul_ps(a, b);
+	vec2 result;
+	_mm_store_ps(reinterpret_cast<float *>(&result), r);
+	return result;
 }
 
 float &vec2::operator[](int idx)
@@ -60,32 +76,48 @@ float vec2::operator[](int idx) const
 	}
 }
 
-
 // non-member function
 
 vec2 operator*(float scalar, const vec2 &vector)
 {
-	return vec2(scalar * vector.x, scalar * vector.y);
+	__m128 a = _mm_load_ps(reinterpret_cast<const float *>(&vector));
+	__m128 s = _mm_set1_ps(scalar);
+	__m128 r = _mm_mul_ps(a, s);
+	vec2 result;
+	_mm_store_ps(reinterpret_cast<float *>(&result), r);
+	return result;
 }
 
 vec2 operator*(const vec2 &vector, float scalar)
 {
-	return vec2(vector.x * scalar, vector.y * scalar);
+	__m128 a = _mm_load_ps(reinterpret_cast<const float *>(&vector));
+	__m128 s = _mm_set1_ps(scalar);
+	__m128 r = _mm_mul_ps(a, s);
+	vec2 result;
+	_mm_store_ps(reinterpret_cast<float *>(&result), r);
+	return result;
 }
 
 float dot(const vec2 &vector1, const vec2 &vector2)
 {
-	return vector1.x * vector2.x + vector1.y * vector2.y;
+	__m128 a = _mm_load_ps(reinterpret_cast<const float *>(&vector1));
+	__m128 b = _mm_load_ps(reinterpret_cast<const float *>(&vector2));
+	__m128 mul = _mm_mul_ps(a, b);
+	__m128 sum = _mm_hadd_ps(mul, mul);
+	return _mm_cvtss_f32(sum);
 }
 
 float length(const vec2 &vector)
 {
-	return std::sqrt(vector.x * vector.x + vector.y * vector.y);
+	float dotVal = dot(vector, vector);
+	__m128 d = _mm_set_ss(dotVal);
+	__m128 sqrtVal = _mm_sqrt_ss(d);
+	return _mm_cvtss_f32(sqrtVal);
 }
 
 float length2(const vec2 &vector)
 {
-	return vector.x * vector.x + vector.y * vector.y;
+	return dot(vector, vector);
 }
 
 float *value_ptr(vec2 &vector)
@@ -95,7 +127,13 @@ float *value_ptr(vec2 &vector)
 
 vec2 normalize(const vec2 &vector)
 {
-	float magnitude = length(vector);
-	return vec2(vector.x / magnitude, vector.y / magnitude);
+	float mag = length(vector);
+	// 브로드캐스트 후 나눗셈
+	__m128 a = _mm_load_ps(reinterpret_cast<const float *>(&vector));
+	__m128 m = _mm_set1_ps(mag);
+	__m128 r = _mm_div_ps(a, m);
+	vec2 result;
+	_mm_store_ps(reinterpret_cast<float *>(&result), r);
+	return result;
 }
 } // namespace alglm

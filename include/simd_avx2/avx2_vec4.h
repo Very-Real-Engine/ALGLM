@@ -38,7 +38,7 @@ float *value_ptr(vec4 &vector);
 
 
 
-struct ivec4
+struct ALIGN16 ivec4
 {
 	int32_t x, y, z, w;
 

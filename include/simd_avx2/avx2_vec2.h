@@ -9,7 +9,7 @@ namespace alglm
 
 struct ALIGN16 vec2
 {
-	float x, y;
+	float x, y, z, w;
 
 	vec2();
 	vec2(float x);
