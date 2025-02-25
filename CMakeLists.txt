@@ -18,7 +18,7 @@ set_target_properties(alglm PROPERTIES
 
 # alglm 설치 구성
 install(TARGETS alglm
-    EXPORT imguiTargets
+    EXPORT alglmTargets
     ARCHIVE DESTINATION lib
     LIBRARY DESTINATION lib
     RUNTIME DESTINATION bin
