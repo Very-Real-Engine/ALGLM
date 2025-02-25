@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
 project(alglm LANGUAGES CXX)
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_library(alglm STATIC
     src/vec2.cpp
@@ -13,8 +11,26 @@ add_library(alglm STATIC
 	src/math_utils.cpp
 )
 
-# include 디렉토리 설정
-target_include_directories(alglm PUBLIC include)
+# Debug 빌드 시 라이브러리 이름에 'd' 접미사를 추가합니다.
+set_target_properties(alglm PROPERTIES
+    DEBUG_POSTFIX "d"
+)
 
-# 필요하면 C++ 표준 설정
-target_compile_features(alglm PUBLIC cxx_std17)
+# alglm 설치 구성
+install(TARGETS alglm
+    EXPORT imguiTargets
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION bin
+)
+
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
+    DESTINATION include/alglm
+    FILES_MATCHING PATTERN "*.h"
+)
+
+# 설치용 CMake 파일 추가
+install(EXPORT alglmTargets
+    FILE alglmConfig.cmake
+    DESTINATION lib/cmake/alglm
+)
