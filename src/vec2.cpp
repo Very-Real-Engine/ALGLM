@@ -1,4 +1,4 @@
-#include "alglm.h"
+#include "../include/alglm.h"
 
 namespace alglm
 {
@@ -16,13 +16,6 @@ vec2 &vec2::operator=(const vec2 &copy)
 {
 	this->x = copy.x;
 	this->y = copy.y;
-	return *this;
-}
-
-vec2 &vec2::operator=(float copy)
-{
-	this->x = copy;
-	this->y = copy;
 	return *this;
 }
 
@@ -77,7 +70,7 @@ vec2 operator*(float scalar, const vec2 &vector)
 
 vec2 operator*(const vec2 &vector, float scalar)
 {
-	return vec2(scalar * vector.x, scalar * vector.y);
+	return vec2(vector.x * scalar, vector.y * scalar);
 }
 
 float dot(const vec2 &vector1, const vec2 &vector2)

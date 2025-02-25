@@ -1,4 +1,4 @@
-#include "alglm.h"
+#include "../include/alglm.h"
 
 namespace alglm
 {
@@ -94,7 +94,7 @@ vec3 operator/(float scalar, const vec3 &vector)
 
 vec3 operator/(const vec3 &vector, float scalar)
 {
-	return vec3(scalar / vector.x, scalar / vector.y, scalar / vector.z);
+	return vec3(vector.x / scalar, vector.y / scalar, vector.z / scalar);
 }
 
 float dot(const vec3 &vector1, const vec3 &vector2)
@@ -149,11 +149,6 @@ vec3 max(const vec3 &v1, const vec3 &v2)
 	ret.z = v1.z >= v2.z ? v1.z : v2.z;
 
 	return ret;
-}
-
-vec3 mix(const vec3 &x, const vec3 &y, float a)
-{
-	return x * (1.0f - a) + y * a;
 }
 
 } // namespace alglm

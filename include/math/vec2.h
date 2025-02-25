@@ -13,8 +13,8 @@ struct vec2
 	vec2();
 	vec2(float x);
 	vec2(float x, float y);
+	vec2(const vec2 &copy);
 	vec2 &operator=(const vec2 &copy);
-	vec2 &operator=(float copy);
 	vec2 operator+(const vec2 &rhs) const;
 	vec2 operator-(const vec2 &rhs) const;
 	vec2 operator*(const vec2 &rhs) const;

@@ -25,7 +25,6 @@ struct vec4
 	float operator[](int idx) const;
 };
 
-vec4 mix(const vec4& x, const vec4& y, float a);
 vec4 normalize(const vec4 &vector);
 vec4 operator*(float scalar, const vec4 &vector);
 vec4 operator*(const vec4 &vector, float scalar);

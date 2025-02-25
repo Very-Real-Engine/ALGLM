@@ -1,4 +1,4 @@
-#include "alglm.h"
+#include "../include/alglm.h"
 
 namespace alglm
 {
@@ -6,11 +6,9 @@ namespace alglm
 
 quat::quat() : x(0), y(0), z(0), w(1) {};
 
-quat::quat(float x) : x(x), y(x), z(x), w(x) {};
+quat::quat(float w, float x, float y, float z) : x(x), y(y), z(z), w(w) {};
 
-quat::quat(float x, float y, float z, float w) : x(x), y(y), z(z), w(w) {};
-
-quat::quat(const vec3 &v, float w) : x(v.x), y(v.y), z(v.z), w(w) {};
+quat::quat(float w, const vec3 &v) : x(v.x), y(v.y), z(v.z), w(w) {};
 
 quat::quat(const quat &copy) : x(copy.x), y(copy.y), z(copy.z), w(copy.w) {};
 
@@ -23,44 +21,33 @@ quat &quat::operator=(const quat &copy)
 	return *this;
 }
 
-quat::quat(float angle, const vec3 &axis)
-{
-	vec3 normalAxis = normalize(axis);
-	float halfAngle = angle / 2.0f;
-	float s = sin(halfAngle);
-	x = normalAxis.x * s;
-	y = normalAxis.y * s;
-	z = normalAxis.z * s;
-	w = cos(halfAngle);
-}
-
 quat::quat(const vec3 &eulerAngle)
 {
-	quat xQuat(vec3(1.0f, 0.0f, 0.0f), radians(eulerAngle.x));
-	quat yQuat(vec3(0.0f, 1.0f, 0.0f), radians(eulerAngle.y));
-	quat zQuat(vec3(0.0f, 0.0f, 1.0f), radians(eulerAngle.z));
-	quat mulQuat = xQuat * yQuat * zQuat;
+    vec3 half = eulerAngle * 0.5f;
 
-	x = mulQuat.x;
-	y = mulQuat.y;
-	z = mulQuat.z;
-	w = mulQuat.w;
+    vec3 c(std::cos(half.x), std::cos(half.y), std::cos(half.z));
+    vec3 s(std::sin(half.x), std::sin(half.y), std::sin(half.z));
+
+    this->w = c.x * c.y * c.z + s.x * s.y * s.z;
+    this->x = s.x * c.y * c.z - c.x * s.y * s.z;
+    this->y = c.x * s.y * c.z + s.x * c.y * s.z;
+    this->z = c.x * c.y * s.z - s.x * s.y * c.z;
 }
 
 quat quat::operator*(const quat &rhs) const
 {
-	return quat(rhs.w * x + rhs.x * w + rhs.y * z - rhs.z * y, rhs.w * y - rhs.x * z + rhs.y * w + rhs.z * x,
-				rhs.w * z + rhs.x * y - rhs.y * x + rhs.z * w, rhs.w * w - rhs.x * x - rhs.y * y - rhs.z * z);
+	return quat(rhs.w * w - rhs.x * x - rhs.y * y - rhs.z * z, rhs.w * x + rhs.x * w - rhs.y * z + rhs.z * y,
+				rhs.w * y + rhs.x * z + rhs.y * w - rhs.z * x, rhs.w * z - rhs.x * y + rhs.y * x + rhs.z * w);
 }
 
 quat quat::operator+(const quat &rhs) const
 {
-	return quat(x + rhs.x, y + rhs.y, z + rhs.z, w + rhs.w);
+	return quat(w + rhs.w, x + rhs.x, y + rhs.y, z + rhs.z);
 }
 
 quat quat::operator-(const quat &rhs) const
 {
-	return quat(x - rhs.x, y - rhs.y, z - rhs.z, w - rhs.w);
+	return quat(w - rhs.w, x - rhs.x, y - rhs.y, z - rhs.z);
 }
 
 quat normalize(const quat &q)
@@ -93,46 +80,119 @@ float length2(const quat &q)
 
 quat angleAxis(float angle, const vec3 &axis)
 {
-	vec3 normAxis = normalize(axis);
 	float halfAngle = angle * 0.5f;
 	float s = sin(halfAngle);
 
-	return quat(normAxis.x * s, normAxis.y * s, normAxis.z * s, cos(halfAngle));
+	return quat(cos(halfAngle), axis.x * s, axis.y * s, axis.z * s);
 }
 
 quat operator*(float a, const quat &q)
 {
-	return quat(a * q.x, a * q.y, a * q.z, a * q.w);
+	return quat(a * q.w, a * q.x, a * q.y, a * q.z);
 }
 
 quat operator*(const quat &q, float a)
 {
-	return quat(a * q.x, a * q.y, a * q.z, a * q.w);
+	return quat(a * q.w, a * q.x, a * q.y, a * q.z);
 }
 
-quat slerp(const quat& x, const quat& y, float a) {
-
-	float dotRes = dot(x, y);
-
-    quat yAdjusted = y;
-    if (dotRes < 0.0f) {
-        yAdjusted = -1 * y;
-        dotRes = -dotRes;
-    }
-
-    const float THRESHOLD = 0.9995f;
-    if (dotRes > THRESHOLD) {
-        return normalize(x + a * (yAdjusted - x)); // LERP 후 정규화
-    }
-
-    float theta = std::acos(dotRes);
-    float sinTheta = std::sin(theta);
-
-    float w1 = std::sin((1.0f - a) * theta) / sinTheta;
-    float w2 = std::sin(a * theta) / sinTheta;
-
-    return normalize(w1 * x + w2 * yAdjusted);
+quat operator/(float a, const quat &q)
+{
+	return quat(q.w / a, q.x / a, q.y / a, q.z / a);
 }
 
+quat operator/(const quat &q, float a)
+{
+	return quat(q.w / a, q.x / a, q.y / a, q.z / a);
+}
+
+float getPitch(const quat &q)
+{
+	float y = 2.0f * (q.w * q.x + q.y * q.z);
+    float x = (q.w * q.w - q.x * q.x - q.y * q.y + q.z * q.z);
+
+	if (abs(y - x) <= 1e-6f)
+	{
+		return 2 * atan2(q.x, q.w);
+	}
+	return atan2(y, x);
+}
+
+float getYaw(const quat &q)
+{
+	return asin(clamp(-2.0f * (q.x * q.z - q.w * q.y), -1.0f, 1.0f));
+}
+
+float getRoll(const quat &q)
+{
+	float y = 2.0f * (q.x * q.y + q.w * q.z);
+	float x = q.w * q.w + q.x * q.x - q.y * q.y - q.z * q.z;
+
+	if (abs(y - x) < 1e-4f)
+		return 0.0f;
+	return atan2(y, x);
+}
+
+float &quat::operator[](int idx)
+{
+	switch (idx)
+	{
+		case 0:
+			return this->x;
+		case 1:
+			return this->y;
+		case 2:
+			return this->z;
+		case 3:
+			return this->w;
+		default:
+			return this->x;
+	}
+}
+
+float quat::operator[](int idx) const
+{
+	switch (idx)
+	{
+		case 0:
+			return this->x;
+		case 1:
+			return this->y;
+		case 2:
+			return this->z;
+		case 3:
+			return this->w;
+		default:
+			return this->x;
+	}
+}
+
+vec3 eulerAngles(const quat &q)
+{
+	return vec3(getPitch(q), getYaw(q), getRoll(q));
+}
+
+quat slerp(const quat &x, const quat &y, float a)
+{
+	float cosTheta = dot(x, y);
+
+	quat z = y;
+	if (cosTheta < 0.0f)
+	{
+		z = -1 * y;
+		cosTheta = -cosTheta;
+	}
+
+	const float THRESHOLD = 0.9995f;
+	if (cosTheta > THRESHOLD)
+	{
+		return quat(mix(x.w, z.w, a), mix(x.x, z.x, a), mix(x.y, z.y, a), mix(x.z, z.z, a));
+	}
+	else
+	{
+		float angle = acos(cosTheta);
+		return (sin((1.0f - a) * angle) * x + sin(a * angle) * z) / sin(angle);
+	}
+}
 
 } // namespace alglm

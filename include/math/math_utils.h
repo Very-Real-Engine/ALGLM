@@ -1,45 +1,37 @@
 #pragma once
 
+#include <algorithm>
 #include <cmath>
 #include <cstdint>
-#include <algorithm>
 
 namespace alglm
 {
 
+struct vec3;
+struct vec4;
+
 template <typename T> constexpr T pi()
 {
-	if constexpr (std::is_same_v<T, float>)
+	if constexpr (std::is_same<T, float>::value)
 	{
-		return 3.14159265358979323846f; // float 타입
+		return 3.1415927f;
 	}
 	else
 	{
-		return 3.14159265358979323846; // 기본 double 타입
+		return 3.141592653589793;
 	}
 }
 
-float radians(float degree)
-{
-	return degree * (3.14159f / 180.0f);
-}
+float abs(float value);
+float clamp(float x, float minVal, float maxVal);
 
-float degrees(float radian)
-{
-	return radian * (180.0f / 3.14159f);
-}
+float radians(float degree);
+vec3 radians(const vec3 &v);
 
-float abs(float value)
-{
-	return (value < 0 ? -value : value);
-}
+float degrees(float radian);
+vec3 degrees(const vec3 &v);
 
-float clamp(float x, float minVal, float maxVal)
-{
-	return std::max(minVal, std::min(x, maxVal));
-}
-
-vec3 radians(vec3 v);
-vec3 degrees(vec3 v);
+float mix(float x, float y, float a);
+vec4 mix(const vec4& x, const vec4& y, float a);
 
 } // namespace alglm

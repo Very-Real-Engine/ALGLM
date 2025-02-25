@@ -32,8 +32,10 @@ struct mat4
 mat4 operator*(float scalar, const mat4 &matrix);
 mat4 operator*(const mat4 &matrix, float scalar);
 
+float determinant(const mat4 &m);
 float *value_ptr(mat4 &matrix);
 
+mat4 transpose(const mat4 &matrix);
 mat4 inverse(const mat4 &matrix);
 mat4 scale(const mat4 &matrix, const vec3 &vector);
 mat4 translate(const mat4 &matrix, const vec3 &vector);
@@ -42,7 +44,7 @@ mat4 perspective(float fovy, float aspect, float zNear, float zFar);
 mat4 lookAt(const vec3 &cameraPos, const vec3 &cameraTarget, const vec3 &cameraUp);
 mat4 toMat4(const quat &quat);
 mat4 ortho(float left, float right, float bottom, float top, float zNear, float zFar);
-bool decompose(const mat4 &modelMatrix, vec3 &translation, quat &rotation, vec3 &scale, vec3 &skew, vec4 &perspective);
-quat quat_cast(const mat4 &matrix);
+bool decompose(const mat4 &modelMatrix, vec3 &scale, quat &rotation, vec3 &translation, vec4 &perspective);
+quat quat_cast(const mat3 &matrix);
 
 } // namespace alglm

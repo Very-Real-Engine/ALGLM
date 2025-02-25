@@ -1,4 +1,4 @@
-#include "alglm.h"
+#include "../include/alglm.h"
 
 namespace alglm
 {
@@ -91,7 +91,7 @@ vec4 operator*(float scalar, const vec4 &vector)
 
 vec4 operator*(const vec4 &vector, float scalar)
 {
-	return vec4(scalar * vector.x, scalar * vector.y, scalar * vector.z, scalar * vector.w);
+	return vec4(vector.x * scalar, vector.y * scalar, vector.z * scalar, vector.w * scalar);
 }
 
 vec4 operator*(const mat4 &matrix, const vec4 &vector)

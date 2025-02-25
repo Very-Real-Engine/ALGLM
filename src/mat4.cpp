@@ -1,4 +1,4 @@
-#include "alglm.h"
+#include "../include/alglm.h"
 
 namespace alglm
 {
@@ -87,25 +87,25 @@ mat4::mat4(const mat4 &copy)
 
 mat4::mat4(const quat &quat)
 {
-	(*this)[0][0] = 1.0f - 2.0f * quat.y * quat.y - 2.0f * quat.z * quat.z;
-	(*this)[1][0] = 2.0f * quat.x * quat.y - 2.0f * quat.w * quat.z;
-	(*this)[2][0] = 2.0f * quat.x * quat.z + 2.0f * quat.w * quat.y;
-	(*this)[3][0] = 0.0f;
+	data[0] = 1.0f - 2.0f * quat.y * quat.y - 2.0f * quat.z * quat.z;
+	data[4] = 2.0f * quat.x * quat.y - 2.0f * quat.w * quat.z;
+	data[8] = 2.0f * quat.x * quat.z + 2.0f * quat.w * quat.y;
+	data[12] = 0.0f;
 
-	(*this)[0][1] = 2.0f * quat.x * quat.y + 2.0f * quat.w * quat.z;
-	(*this)[1][1] = 1.0f - 2.0f * quat.x * quat.x - 2.0f * quat.z * quat.z;
-	(*this)[2][1] = 2.0f * quat.y * quat.z - 2.0f * quat.w * quat.x;
-	(*this)[3][1] = 0.0f;
+	data[1] = 2.0f * quat.x * quat.y + 2.0f * quat.w * quat.z;
+	data[5] = 1.0f - 2.0f * quat.x * quat.x - 2.0f * quat.z * quat.z;
+	data[9] = 2.0f * quat.y * quat.z - 2.0f * quat.w * quat.x;
+	data[13] = 0.0f;
 
-	(*this)[0][2] = 2.0f * quat.x * quat.z - 2.0f * quat.w * quat.y;
-	(*this)[1][2] = 2.0f * quat.y * quat.z + 2.0f * quat.w * quat.x;
-	(*this)[2][2] = 1.0f - 2.0f * quat.x * quat.x - 2.0f * quat.y * quat.y;
-	(*this)[3][2] = 0.0f;
+	data[2] = 2.0f * quat.x * quat.z - 2.0f * quat.w * quat.y;
+	data[6] = 2.0f * quat.y * quat.z + 2.0f * quat.w * quat.x;
+	data[10] = 1.0f - 2.0f * quat.x * quat.x - 2.0f * quat.y * quat.y;
+	data[14] = 0.0f;
 
-	(*this)[0][3] = 0.0f;
-	(*this)[1][3] = 0.0f;
-	(*this)[2][3] = 0.0f;
-	(*this)[3][3] = 1.0f;
+	data[3] = 0.0f;
+	data[7] = 0.0f;
+	data[11] = 0.0f;
+	data[15] = 1.0f;
 }
 
 mat4 &mat4::operator=(const mat4 &copy)
@@ -145,20 +145,35 @@ mat4 mat4::operator*(const mat4 &rhs) const
 {
 	mat4 ret;
 
-	for (int32_t i = 0; i < 16; ++i)
-	{
-		ret.data[i] = data[i] * rhs.data[i];
-	}
+	ret[0][0] = data[0] * rhs.data[0] + data[4] * rhs.data[1] + data[8] * rhs.data[2] + data[12] * rhs.data[3];
+	ret[0][1] = data[1] * rhs.data[0] + data[5] * rhs.data[1] + data[9] * rhs.data[2] + data[13] * rhs.data[3];
+	ret[0][2] = data[2] * rhs.data[0] + data[6] * rhs.data[1] + data[10] * rhs.data[2] + data[14] * rhs.data[3];
+	ret[0][3] = data[3] * rhs.data[0] + data[7] * rhs.data[1] + data[11] * rhs.data[2] + data[15] * rhs.data[3];
+
+	ret[1][0] = data[0] * rhs.data[4] + data[4] * rhs.data[5] + data[8] * rhs.data[6] + data[12] * rhs.data[7];
+	ret[1][1] = data[1] * rhs.data[4] + data[5] * rhs.data[5] + data[9] * rhs.data[6] + data[13] * rhs.data[7];
+	ret[1][2] = data[2] * rhs.data[4] + data[6] * rhs.data[5] + data[10] * rhs.data[6] + data[14] * rhs.data[7];
+	ret[1][3] = data[3] * rhs.data[4] + data[7] * rhs.data[5] + data[11] * rhs.data[6] + data[15] * rhs.data[7];
+
+	ret[2][0] = data[0] * rhs.data[8] + data[4] * rhs.data[9] + data[8] * rhs.data[10] + data[12] * rhs.data[11];
+	ret[2][1] = data[1] * rhs.data[8] + data[5] * rhs.data[9] + data[9] * rhs.data[10] + data[13] * rhs.data[11];
+	ret[2][2] = data[2] * rhs.data[8] + data[6] * rhs.data[9] + data[10] * rhs.data[10] + data[14] * rhs.data[11];
+	ret[2][3] = data[3] * rhs.data[8] + data[7] * rhs.data[9] + data[11] * rhs.data[10] + data[15] * rhs.data[11];
+
+	ret[3][0] = data[0] * rhs.data[12] + data[4] * rhs.data[13] + data[8] * rhs.data[14] + data[12] * rhs.data[15];
+	ret[3][1] = data[1] * rhs.data[12] + data[5] * rhs.data[13] + data[9] * rhs.data[14] + data[13] * rhs.data[15];
+	ret[3][2] = data[2] * rhs.data[12] + data[6] * rhs.data[13] + data[10] * rhs.data[14] + data[14] * rhs.data[15];
+	ret[3][3] = data[3] * rhs.data[12] + data[7] * rhs.data[13] + data[11] * rhs.data[14] + data[15] * rhs.data[15];
 
 	return ret;
 }
 
-float *mat3::operator[](int idx)
+float *mat4::operator[](int idx)
 {
 	return &data[idx * 4];
 }
 
-const float *mat3::operator[](int idx) const
+const float *mat4::operator[](int idx) const
 {
 	return &data[idx * 4];
 }
@@ -196,59 +211,86 @@ float *value_ptr(mat4 &matrix)
 
 mat4 inverse(const mat4 &matrix)
 {
-	float coef00 = matrix[2][2] * matrix[3][3] - matrix[3][2] * matrix[2][3];
-	float coef02 = matrix[1][2] * matrix[3][3] - matrix[3][2] * matrix[1][3];
-	float coef03 = matrix[1][2] * matrix[2][3] - matrix[2][2] * matrix[1][3];
+	mat4 inv;
+	float det;
+	int i;
 
-	float coef04 = matrix[2][1] * matrix[3][3] - matrix[3][1] * matrix[2][3];
-	float coef06 = matrix[1][1] * matrix[3][3] - matrix[3][1] * matrix[1][3];
-	float coef07 = matrix[1][1] * matrix[2][3] - matrix[2][1] * matrix[1][3];
+	inv[0][0] = matrix[1][1] * matrix[2][2] * matrix[3][3] - matrix[1][1] * matrix[2][3] * matrix[3][2] -
+				matrix[2][1] * matrix[1][2] * matrix[3][3] + matrix[2][1] * matrix[1][3] * matrix[3][2] +
+				matrix[3][1] * matrix[1][2] * matrix[2][3] - matrix[3][1] * matrix[1][3] * matrix[2][2];
 
-	float coef08 = matrix[2][1] * matrix[3][2] - matrix[3][1] * matrix[2][2];
-	float coef10 = matrix[1][1] * matrix[3][2] - matrix[3][1] * matrix[1][2];
-	float coef11 = matrix[1][1] * matrix[2][2] - matrix[2][1] * matrix[1][2];
+	inv[0][1] = -matrix[0][1] * matrix[2][2] * matrix[3][3] + matrix[0][1] * matrix[2][3] * matrix[3][2] +
+				matrix[2][1] * matrix[0][2] * matrix[3][3] - matrix[2][1] * matrix[0][3] * matrix[3][2] -
+				matrix[3][1] * matrix[0][2] * matrix[2][3] + matrix[3][1] * matrix[0][3] * matrix[2][2];
 
-	float coef12 = matrix[2][0] * matrix[3][3] - matrix[3][0] * matrix[2][3];
-	float coef14 = matrix[1][0] * matrix[3][3] - matrix[3][0] * matrix[1][3];
-	float coef15 = matrix[1][0] * matrix[2][3] - matrix[2][0] * matrix[1][3];
+	inv[0][2] = matrix[0][1] * matrix[1][2] * matrix[3][3] - matrix[0][1] * matrix[1][3] * matrix[3][2] -
+				matrix[1][1] * matrix[0][2] * matrix[3][3] + matrix[1][1] * matrix[0][3] * matrix[3][2] +
+				matrix[3][1] * matrix[0][2] * matrix[1][3] - matrix[3][1] * matrix[0][3] * matrix[1][2];
 
-	float coef16 = matrix[2][0] * matrix[3][2] - matrix[3][0] * matrix[2][2];
-	float coef18 = matrix[1][0] * matrix[3][2] - matrix[3][0] * matrix[1][2];
-	float coef19 = matrix[1][0] * matrix[2][2] - matrix[2][0] * matrix[1][2];
+	inv[0][3] = -matrix[0][1] * matrix[1][2] * matrix[2][3] + matrix[0][1] * matrix[1][3] * matrix[2][2] +
+				matrix[1][1] * matrix[0][2] * matrix[2][3] - matrix[1][1] * matrix[0][3] * matrix[2][2] -
+				matrix[2][1] * matrix[0][2] * matrix[1][3] + matrix[2][1] * matrix[0][3] * matrix[1][2];
 
-	float coef20 = matrix[2][0] * matrix[3][1] - matrix[3][0] * matrix[2][1];
-	float coef22 = matrix[1][0] * matrix[3][1] - matrix[3][0] * matrix[1][1];
-	float coef23 = matrix[1][0] * matrix[2][1] - matrix[2][0] * matrix[1][1];
+	inv[1][0] = -matrix[1][0] * matrix[2][2] * matrix[3][3] + matrix[1][0] * matrix[2][3] * matrix[3][2] +
+				matrix[2][0] * matrix[1][2] * matrix[3][3] - matrix[2][0] * matrix[1][3] * matrix[3][2] -
+				matrix[3][0] * matrix[1][2] * matrix[2][3] + matrix[3][0] * matrix[1][3] * matrix[2][2];
 
-	vec4 fac0(coef00, coef00, coef02, coef03);
-	vec4 fac1(coef04, coef04, coef06, coef07);
-	vec4 fac2(coef08, coef08, coef10, coef11);
-	vec4 fac3(coef12, coef12, coef14, coef15);
-	vec4 fac4(coef16, coef16, coef18, coef19);
-	vec4 fac5(coef20, coef20, coef22, coef23);
+	inv[1][1] = matrix[0][0] * matrix[2][2] * matrix[3][3] - matrix[0][0] * matrix[2][3] * matrix[3][2] -
+				matrix[2][0] * matrix[0][2] * matrix[3][3] + matrix[2][0] * matrix[0][3] * matrix[3][2] +
+				matrix[3][0] * matrix[0][2] * matrix[2][3] - matrix[3][0] * matrix[0][3] * matrix[2][2];
 
-	vec4 vec0(matrix[1][0], matrix[0][0], matrix[0][0], matrix[0][0]);
-	vec4 vec1(matrix[1][1], matrix[0][1], matrix[0][1], matrix[0][1]);
-	vec4 vec2(matrix[1][2], matrix[0][2], matrix[0][2], matrix[0][2]);
-	vec4 vec3(matrix[1][3], matrix[0][3], matrix[0][3], matrix[0][3]);
+	inv[1][2] = -matrix[0][0] * matrix[1][2] * matrix[3][3] + matrix[0][0] * matrix[1][3] * matrix[3][2] +
+				matrix[1][0] * matrix[0][2] * matrix[3][3] - matrix[1][0] * matrix[0][3] * matrix[3][2] -
+				matrix[3][0] * matrix[0][2] * matrix[1][3] + matrix[3][0] * matrix[0][3] * matrix[1][2];
 
-	vec4 inv0(vec1 * fac0 - vec2 * fac1 + vec3 * fac2);
-	vec4 inv1(vec0 * fac0 - vec2 * fac3 + vec3 * fac4);
-	vec4 inv2(vec0 * fac1 - vec1 * fac3 + vec3 * fac5);
-	vec4 inv3(vec0 * fac2 - vec1 * fac4 + vec2 * fac5);
+	inv[1][3] = matrix[0][0] * matrix[1][2] * matrix[2][3] - matrix[0][0] * matrix[1][3] * matrix[2][2] -
+				matrix[1][0] * matrix[0][2] * matrix[2][3] + matrix[1][0] * matrix[0][3] * matrix[2][2] +
+				matrix[2][0] * matrix[0][2] * matrix[1][3] - matrix[2][0] * matrix[0][3] * matrix[1][2];
 
-	vec4 signA(+1, -1, +1, -1);
-	vec4 signB(-1, +1, -1, +1);
-	mat4 inverse(inv0 * signA, inv1 * signB, inv2 * signA, inv3 * signB);
+	inv[2][0] = matrix[1][0] * matrix[2][1] * matrix[3][3] - matrix[1][0] * matrix[2][3] * matrix[3][1] -
+				matrix[2][0] * matrix[1][1] * matrix[3][3] + matrix[2][0] * matrix[1][3] * matrix[3][1] +
+				matrix[3][0] * matrix[1][1] * matrix[2][3] - matrix[3][0] * matrix[1][3] * matrix[2][1];
 
-	vec4 row0(inverse[0][0], inverse[1][0], inverse[2][0], inverse[3][0]);
+	inv[2][1] = -matrix[0][0] * matrix[2][1] * matrix[3][3] + matrix[0][0] * matrix[2][3] * matrix[3][1] +
+				matrix[2][0] * matrix[0][1] * matrix[3][3] - matrix[2][0] * matrix[0][3] * matrix[3][1] -
+				matrix[3][0] * matrix[0][1] * matrix[2][3] + matrix[3][0] * matrix[0][3] * matrix[2][1];
 
-	vec4 dot0((*matrix[0]) * row0);
-	float det = (dot0.x + dot0.y) + (dot0.z + dot0.w);
+	inv[2][2] = matrix[0][0] * matrix[1][1] * matrix[3][3] - matrix[0][0] * matrix[1][3] * matrix[3][1] -
+				matrix[1][0] * matrix[0][1] * matrix[3][3] + matrix[1][0] * matrix[0][3] * matrix[3][1] +
+				matrix[3][0] * matrix[0][1] * matrix[1][3] - matrix[3][0] * matrix[0][3] * matrix[1][1];
 
-	float oneOverDeterminant = 1.0f / det;
+	inv[2][3] = -matrix[0][0] * matrix[1][1] * matrix[2][3] + matrix[0][0] * matrix[1][3] * matrix[2][1] +
+				matrix[1][0] * matrix[0][1] * matrix[2][3] - matrix[1][0] * matrix[0][3] * matrix[2][1] -
+				matrix[2][0] * matrix[0][1] * matrix[1][3] + matrix[2][0] * matrix[0][3] * matrix[1][1];
 
-	return inverse * oneOverDeterminant;
+	inv[3][0] = -matrix[1][0] * matrix[2][1] * matrix[3][2] + matrix[1][0] * matrix[2][2] * matrix[3][1] +
+				matrix[2][0] * matrix[1][1] * matrix[3][2] - matrix[2][0] * matrix[1][2] * matrix[3][1] -
+				matrix[3][0] * matrix[1][1] * matrix[2][2] + matrix[3][0] * matrix[1][2] * matrix[2][1];
+
+	inv[3][1] = matrix[0][0] * matrix[2][1] * matrix[3][2] - matrix[0][0] * matrix[2][2] * matrix[3][1] -
+				matrix[2][0] * matrix[0][1] * matrix[3][2] + matrix[2][0] * matrix[0][2] * matrix[3][1] +
+				matrix[3][0] * matrix[0][1] * matrix[2][2] - matrix[3][0] * matrix[0][2] * matrix[2][1];
+
+	inv[3][2] = -matrix[0][0] * matrix[1][1] * matrix[3][2] + matrix[0][0] * matrix[1][2] * matrix[3][1] +
+				matrix[1][0] * matrix[0][1] * matrix[3][2] - matrix[1][0] * matrix[0][2] * matrix[3][1] -
+				matrix[3][0] * matrix[0][1] * matrix[1][2] + matrix[3][0] * matrix[0][2] * matrix[1][1];
+
+	inv[3][3] = matrix[0][0] * matrix[1][1] * matrix[2][2] - matrix[0][0] * matrix[1][2] * matrix[2][1] -
+				matrix[1][0] * matrix[0][1] * matrix[2][2] + matrix[1][0] * matrix[0][2] * matrix[2][1] +
+				matrix[2][0] * matrix[0][1] * matrix[1][2] - matrix[2][0] * matrix[0][2] * matrix[1][1];
+
+	det = matrix[0][0] * inv[0][0] + matrix[0][1] * inv[1][0] + matrix[0][2] * inv[2][0] + matrix[0][3] * inv[3][0];
+
+	det = 1.0f / det;
+	for (i = 0; i < 4; i++)
+	{
+		for (int j = 0; j < 4; j++)
+		{
+			inv[i][j] *= det;
+		}
+	}
+
+	return inv;
 }
 
 mat4 scale(const mat4 &matrix, const vec3 &vector)
@@ -331,127 +373,190 @@ mat4 ortho(float left, float right, float bottom, float top, float zNear, float 
 	return result;
 }
 
-bool decompose(const mat4 &modelMatrix, vec3 &translation, quat &rotation, vec3 &scale, vec3 &skew, vec4 &perspective)
+float determinant(const mat4 &m)
 {
-	mat4 localMatrix = modelMatrix;
+	float SubFactor00 = m[2][2] * m[3][3] - m[3][2] * m[2][3];
+	float SubFactor01 = m[2][1] * m[3][3] - m[3][1] * m[2][3];
+	float SubFactor02 = m[2][1] * m[3][2] - m[3][1] * m[2][2];
+	float SubFactor03 = m[2][0] * m[3][3] - m[3][0] * m[2][3];
+	float SubFactor04 = m[2][0] * m[3][2] - m[3][0] * m[2][2];
+	float SubFactor05 = m[2][0] * m[3][1] - m[3][0] * m[2][1];
 
-	if (abs(localMatrix[3][3]) < std::numeric_limits<float>::epsilon())
+	vec4 detCof(+(m[1][1] * SubFactor00 - m[1][2] * SubFactor01 + m[1][3] * SubFactor02),
+				-(m[1][0] * SubFactor00 - m[1][2] * SubFactor03 + m[1][3] * SubFactor04),
+				+(m[1][0] * SubFactor01 - m[1][1] * SubFactor03 + m[1][3] * SubFactor05),
+				-(m[1][0] * SubFactor02 - m[1][1] * SubFactor04 + m[1][2] * SubFactor05));
+
+	return m[0][0] * detCof[0] + m[0][1] * detCof[1] + m[0][2] * detCof[2] + m[0][3] * detCof[3];
+}
+
+bool decompose(const mat4 &modelMatrix, vec3 &scale, quat &rotation, vec3 &translation, vec4 &perspective)
+{
+	mat4 localMatrix(modelMatrix);
+	if (abs(localMatrix[3][3]) <= 1e-6f)
 	{
-		return false; // 분해 실패
+		return false;
 	}
 
-	for (int i = 0; i < 4; i++)
+	for (int32_t i = 0; i < 4; ++i)
 	{
-		for (int j = 0; j < 4; j++)
+		for (int32_t j = 0; j < 4; ++j)
 		{
 			localMatrix[i][j] /= localMatrix[3][3];
 		}
 	}
 
-	translation.x = localMatrix[3][0];
-	translation.y = localMatrix[3][1];
-	translation.z = localMatrix[3][2];
+	mat4 perspectiveMatrix(localMatrix);
+	for (int32_t i = 0; i < 3; ++i)
+	{
+		perspectiveMatrix[i][3] = 0.0f;
+	}
+	perspectiveMatrix[3][3] = 1.0f;
 
-	perspective.x = localMatrix[3][0];
-	perspective.y = localMatrix[3][1];
-	perspective.z = localMatrix[3][2];
-	perspective.w = localMatrix[3][3];
+	if (abs(determinant(perspectiveMatrix)) <= 1e-6f)
+	{
+		return false;
+	}
 
+	if (abs(localMatrix[0][3]) > 1e-6f || abs(localMatrix[1][3]) > 1e-6f || abs(localMatrix[2][3]) > 1e-6f)
+	{
+		vec4 rhs;
+		rhs[0] = localMatrix[0][3];
+		rhs[1] = localMatrix[1][3];
+		rhs[2] = localMatrix[2][3];
+		rhs[3] = localMatrix[3][3];
+
+		mat4 inversePerspectiveMatrix = inverse(perspectiveMatrix);
+		mat4 transposedInversePerspectiveMatrix = transpose(inversePerspectiveMatrix);
+		
+		perspective = transposedInversePerspectiveMatrix * rhs;
+
+		localMatrix[0][3] = localMatrix[1][3] = localMatrix[2][3] = 0.0f;
+		localMatrix[3][3] = 1.0f;
+	}
+	else
+	{
+		perspective = vec4(0.0f, 0.0f, 0.0f, 1.0f);
+	}
+
+	translation = vec3(localMatrix[3][0], localMatrix[3][1], localMatrix[3][2]);
 	localMatrix[3][0] = 0.0f;
 	localMatrix[3][1] = 0.0f;
 	localMatrix[3][2] = 0.0f;
-	localMatrix[3][3] = 1.0f;
 
-	for (int i = 0; i < 3; i++)
+	vec3 row[3], pDum3;
+
+	for (int32_t i = 0; i < 3; ++i)
 	{
-		vec3 tmp(localMatrix[i][0], localMatrix[i][1], localMatrix[i][2]);
-		scale[i] = length(tmp);
-		localMatrix[i][0] = tmp.x / scale[i];
-		localMatrix[i][1] = tmp.y / scale[i];
-		localMatrix[i][2] = tmp.z / scale[i];
-		localMatrix[i][3] = 0.0f;
+		for (int32_t j = 0; j < 3; ++j)
+		{
+			row[i][j] = localMatrix[i][j];
+		}
+	}
+	scale.x = length(row[0]);
+	row[0] = row[0] / scale.x;
+
+	scale.y = length(row[1]);
+	row[1] = row[1] / scale.y;
+
+	scale.z = length(row[2]);
+	row[2] = row[2] / scale.z;
+
+	pDum3 = cross(row[1], row[2]);
+	if (dot(row[0], pDum3) < 0)
+	{
+		for (int32_t i = 0; i < 3; ++i)
+		{
+			scale[i] = scale[i] * -1.0f;
+			row[i] = row[i] * -1.0f;
+		}
 	}
 
-	vec3 col1(localMatrix[0][0], localMatrix[0][1], localMatrix[0][2]);
-	vec3 col2(localMatrix[1][0], localMatrix[1][1], localMatrix[1][2]);
-	vec3 col3(localMatrix[2][0], localMatrix[2][1], localMatrix[2][2]);
-	skew.x = dot(col1, col2);
-	skew.y = dot(col1, col3);
-	skew.z = dot(col2, col3);
+	int32_t i, j, k = 0;
 
-	rotation = quat_cast(localMatrix);
+	float root, trace = row[0].x + row[1].y + row[2].z;
+	if (trace > 0.0f)
+	{
+		root = sqrt(trace + 1.0f);
+		rotation.w = 0.5f * root;
+		root = 0.5f / root;
+		rotation.x = root * (row[1].z - row[2].y);
+		rotation.y = root * (row[2].x - row[0].z);
+		rotation.z = root * (row[0].y - row[1].x);
+	}
+	else
+	{
+		static int next[3] = {1, 2, 0};
+		i = 0;
+		if (row[1].y > row[0].x)
+		{
+			i = 1;
+		}
+		if (row[2].z > row[i][i])
+		{
+			i = 2;
+		}
+		j = next[i];
+		k = next[j];
 
+		root = sqrt(row[i][i] - row[j][j] - row[k][k] + 1.0f);
+
+		rotation[i] = 0.5f * root;
+		root = 0.5f / root;
+		rotation[j] = root * (row[i][j] + row[j][i]);
+		rotation[k] = root * (row[i][k] + row[k][i]);
+		rotation.w = root * (row[j][k] - row[k][j]);
+	}
 	return true;
 }
 
 quat quat_cast(const mat3 &matrix)
 {
-	float trace = matrix[0][0] + matrix[1][1] + matrix[2][2];
-	quat q;
+	float x = matrix[0][0] - matrix[1][1] - matrix[2][2];
+	float y = matrix[1][1] - matrix[0][0] - matrix[2][2];
+	float z = matrix[2][2] - matrix[0][0] - matrix[1][1];
+	float w = matrix[0][0] + matrix[1][1] + matrix[2][2];
 
-	if (trace > 0.0f)
+	int bigIdx = 0;
+	float v = w;
+	if (x > v)
 	{
-		float s = 0.5f / std::sqrt(trace + 1.0f);
-		q.w = 0.25f / s;
-		q.x = (matrix[2][1] - matrix[1][2]) * s;
-		q.y = (matrix[0][2] - matrix[2][0]) * s;
-		q.z = (matrix[1][0] - matrix[0][1]) * s;
+		v = x;
+		bigIdx = 1;
 	}
-	else
+	if (y > v)
 	{
-		if (matrix[0][0] > matrix[1][1] && matrix[0][0] > matrix[2][2])
-		{
-			float s = 2.0f * std::sqrt(1.0f + matrix[0][0] - matrix[1][1] - matrix[2][2]);
-			q.w = (matrix[2][1] - matrix[1][2]) / s;
-			q.x = 0.25f * s;
-			q.y = (matrix[0][1] + matrix[1][0]) / s;
-			q.z = (matrix[0][2] + matrix[2][0]) / s;
-		}
-		else if (matrix[1][1] > matrix[2][2])
-		{
-			float s = 2.0f * std::sqrt(1.0f + matrix[1][1] - matrix[0][0] - matrix[2][2]);
-			q.w = (matrix[0][2] - matrix[2][0]) / s;
-			q.x = (matrix[0][1] + matrix[1][0]) / s;
-			q.y = 0.25f * s;
-			q.z = (matrix[1][2] + matrix[2][1]) / s;
-		}
-		else
-		{
-			float s = 2.0f * std::sqrt(1.0f + matrix[2][2] - matrix[0][0] - matrix[1][1]);
-			q.w = (matrix[1][0] - matrix[0][1]) / s;
-			q.x = (matrix[0][2] + matrix[2][0]) / s;
-			q.y = (matrix[1][2] + matrix[2][1]) / s;
-			q.z = 0.25f * s;
-		}
+		v = y;
+		bigIdx = 2;
+	}
+	if (z > v)
+	{
+		v = z;
+		bigIdx = 3;
 	}
 
-	return normalize(q);
+	float bigValue = sqrt(v + 1.0f) * 0.5f;
+	float mult = 0.25f / bigValue;
+
+	switch(bigIdx)
+	{
+		case 0:
+			return quat(bigValue, (matrix[1][2] - matrix[2][1]) * mult, (matrix[2][0] - matrix[0][2]) * mult, (matrix[0][1] - matrix[1][0]) * mult);
+		case 1:
+			return quat((matrix[1][2] - matrix[2][1]) * mult, bigValue, (matrix[0][1] + matrix[1][0]) * mult, (matrix[2][0] + matrix[0][2]) * mult);
+		case 2:
+			return quat((matrix[2][0] - matrix[0][2]) * mult, (matrix[0][1] + matrix[1][0]) * mult, bigValue, (matrix[1][2] + matrix[2][1]) * mult);
+		case 3:
+			return quat((matrix[0][1] - matrix[1][0]) * mult, (matrix[2][0] + matrix[0][2]) * mult, (matrix[1][2] + matrix[2][1]) * mult, bigValue);
+		default:
+			return quat(1, 0, 0, 0);
+	}
 }
 
-vec3 eulerAngles(const quat &q)
+mat4 transpose(const mat4 &matrix)
 {
-	vec3 angles;
-
-	float sinrCosp = 2.0f * (q.w * q.x + q.y * q.z);
-	float cosrCosp = 1.0f - 2.0f * (q.x * q.x + q.y * q.y);
-	angles.x = std::atan2(sinrCosp, cosrCosp);
-
-	float sinp = 2.0f * (q.w * q.y - q.z * q.x);
-	if (std::abs(sinp) >= 1.0f)
-	{
-		angles.y = std::copysign(pi<float>() / 2.0f, sinp);
-	}
-	else
-	{
-		angles.y = std::asin(sinp);
-	}
-
-	// Yaw (z-axis rotation)
-	float sinyCosp = 2.0f * (q.w * q.z + q.x * q.y);
-	float cosyCosp = 1.0f - 2.0f * (q.y * q.y + q.z * q.z);
-	angles.z = std::atan2(sinyCosp, cosyCosp);
-
-	return angles;
+	return mat4(matrix[0][0], matrix[1][0], matrix[2][0], matrix[3][0], matrix[0][1], matrix[1][1], matrix[2][1],
+				matrix[3][1], matrix[0][2], matrix[1][2], matrix[2][2], matrix[3][2], matrix[0][3], matrix[1][3],
+				matrix[2][3], matrix[3][3]);
 }
-
 } // namespace alglm

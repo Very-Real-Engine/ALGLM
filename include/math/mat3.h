@@ -32,5 +32,6 @@ mat3 operator*(const mat3 &matrix, float scalar);
 mat3 inverse(const mat3 &matrix);
 mat3 transpose(const mat3 &matrix);
 float *value_ptr(mat3 &matrix);
+float determinant(const mat3 &m);
 
 } // namespace alglm

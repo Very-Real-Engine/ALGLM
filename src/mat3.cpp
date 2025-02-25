@@ -1,4 +1,4 @@
-#include "alglm.h"
+#include "../include/alglm.h"
 
 namespace alglm
 {
@@ -29,6 +29,7 @@ mat3::mat3(float x)
 	data[7] = 0.0f;
 	data[8] = x;
 }
+
 mat3::mat3(float f0, float f1, float f2, float f3, float f4, float f5, float f6, float f7, float f8)
 {
 	data[0] = f0;
@@ -108,10 +109,17 @@ mat3 mat3::operator*(const mat3 &rhs) const
 {
 	mat3 ret;
 
-	for (int32_t i = 0; i < 9; ++i)
-	{
-		ret.data[i] = data[i] * rhs.data[i];
-	}
+	ret[0][0] = data[0] * rhs.data[0] + data[3] * rhs.data[1] + data[6] * rhs.data[2];
+	ret[0][1] = data[1] * rhs.data[0] + data[4] * rhs.data[1] + data[7] * rhs.data[2];
+	ret[0][2] = data[2] * rhs.data[0] + data[5] * rhs.data[1] + data[8] * rhs.data[2];
+
+	ret[1][0] = data[0] * rhs.data[3] + data[3] * rhs.data[4] + data[6] * rhs.data[5];
+	ret[1][1] = data[1] * rhs.data[3] + data[4] * rhs.data[4] + data[7] * rhs.data[5];
+	ret[1][2] = data[2] * rhs.data[3] + data[5] * rhs.data[4] + data[8] * rhs.data[5];
+
+	ret[2][0] = data[0] * rhs.data[6] + data[3] * rhs.data[7] + data[6] * rhs.data[8];
+	ret[2][1] = data[1] * rhs.data[6] + data[4] * rhs.data[7] + data[7] * rhs.data[8];
+	ret[2][2] = data[2] * rhs.data[6] + data[5] * rhs.data[7] + data[8] * rhs.data[8];
 
 	return ret;
 }
@@ -159,9 +167,7 @@ float *value_ptr(mat3 &matrix)
 
 mat3 inverse(const mat3 &matrix)
 {
-	float det = matrix.data[0] * (matrix.data[4] * matrix.data[8] - matrix.data[5] * matrix.data[7]) -
-				matrix.data[1] * (matrix.data[3] * matrix.data[8] - matrix.data[5] * matrix.data[6]) +
-				matrix.data[2] * (matrix.data[3] * matrix.data[7] - matrix.data[4] * matrix.data[6]);
+	float det = determinant(matrix);
 
 	float invDet = 1.0f / det;
 
@@ -183,6 +189,12 @@ mat3 transpose(const mat3 &matrix)
 {
 	return mat3(matrix[0][0], matrix[1][0], matrix[2][0], matrix[0][1], matrix[1][1], matrix[2][1], matrix[0][2],
 				matrix[1][2], matrix[2][2]);
+}
+
+float determinant(const mat3 &m)
+{
+	return m[0][0] * (m[1][1] * m[2][2] - m[2][1] * m[1][2]) - m[1][0] * (m[0][1] * m[2][2] - m[2][1] * m[0][2]) +
+		   m[2][0] * (m[0][1] * m[1][2] - m[1][1] * m[0][2]);
 }
 
 } // namespace alglm

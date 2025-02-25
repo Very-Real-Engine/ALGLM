@@ -6,18 +6,19 @@
 //     #define CPU_AVX512
 //     #include "simd_avx512.h"
 
-#if defined(__AVX2__)
-    #define CPU_AVX2
-    #include "simd_avx2.h"
-#elif defined(__SSE4_2__)
-    #define CPU_SSE42
-    #include "simd_sse42.h"
-#elif defined(__ARM_NEON)
-    #define CPU_NEON
-    #include "simd_neon.h"
-#else
-    #define CPU_SCALAR
-    #include "simd_scalar.h"
-#endif
+// #if defined(__AVX2__)
+//     #define CPU_AVX2
+//     #include "simd_avx2.h"
+// #elif defined(__SSE4_2__)
+//     #define CPU_SSE42
+//     #include "simd_sse42.h"
+// #elif defined(__ARM_NEON)
+//     #define CPU_NEON
+//     #include "simd_neon.h"
+// #else
+//     #define CPU_SCALAR
+//     #include "simd_scalar.h"
+// #endif
+#include "simd_scalar.h"
 
 #endif // PLATFORM_H
