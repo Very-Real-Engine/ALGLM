@@ -214,7 +214,7 @@ mat4 inverse(const mat4 &matrix)
 	float coef00 = matrix[2][2] * matrix[3][3] - matrix[3][2] * matrix[2][3];
 	float coef02 = matrix[1][2] * matrix[3][3] - matrix[3][2] * matrix[1][3];
 	float coef03 = matrix[1][2] * matrix[2][3] - matrix[2][2] * matrix[1][3];
-	
+
 	float coef04 = matrix[2][1] * matrix[3][3] - matrix[3][1] * matrix[2][3];
 	float coef06 = matrix[1][1] * matrix[3][3] - matrix[3][1] * matrix[1][3];
 	float coef07 = matrix[1][1] * matrix[2][3] - matrix[2][1] * matrix[1][3];
@@ -222,7 +222,7 @@ mat4 inverse(const mat4 &matrix)
 	float coef08 = matrix[2][1] * matrix[3][2] - matrix[3][1] * matrix[2][2];
 	float coef10 = matrix[1][1] * matrix[3][2] - matrix[3][1] * matrix[1][2];
 	float coef11 = matrix[1][1] * matrix[2][2] - matrix[2][1] * matrix[1][2];
-	
+
 	float coef12 = matrix[2][0] * matrix[3][3] - matrix[3][0] * matrix[2][3];
 	float coef14 = matrix[1][0] * matrix[3][3] - matrix[3][0] * matrix[1][3];
 	float coef15 = matrix[1][0] * matrix[2][3] - matrix[2][0] * matrix[1][3];
@@ -368,7 +368,7 @@ float determinant(const mat4 &m)
 bool decompose(const mat4 &modelMatrix, vec3 &scale, quat &rotation, vec3 &translation, vec4 &perspective)
 {
 	mat4 localMatrix(modelMatrix);
-	if (abs(localMatrix[3][3]) <= 1e-6f)
+	if (abs(localMatrix[3][3]) <= 1e-8f)
 	{
 		return false;
 	}
@@ -388,12 +388,12 @@ bool decompose(const mat4 &modelMatrix, vec3 &scale, quat &rotation, vec3 &trans
 	}
 	perspectiveMatrix[3][3] = 1.0f;
 
-	if (abs(determinant(perspectiveMatrix)) <= 1e-6f)
+	if (abs(determinant(perspectiveMatrix)) <= 1e-8f)
 	{
 		return false;
 	}
 
-	if (abs(localMatrix[0][3]) > 1e-6f || abs(localMatrix[1][3]) > 1e-6f || abs(localMatrix[2][3]) > 1e-6f)
+	if (abs(localMatrix[0][3]) > 1e-8f || abs(localMatrix[1][3]) > 1e-8f || abs(localMatrix[2][3]) > 1e-8f)
 	{
 		vec4 rhs;
 		rhs[0] = localMatrix[0][3];
@@ -403,7 +403,7 @@ bool decompose(const mat4 &modelMatrix, vec3 &scale, quat &rotation, vec3 &trans
 
 		mat4 inversePerspectiveMatrix = inverse(perspectiveMatrix);
 		mat4 transposedInversePerspectiveMatrix = transpose(inversePerspectiveMatrix);
-		
+
 		perspective = transposedInversePerspectiveMatrix * rhs;
 
 		localMatrix[0][3] = localMatrix[1][3] = localMatrix[2][3] = 0.0f;
@@ -513,18 +513,22 @@ quat quat_cast(const mat3 &matrix)
 	float bigValue = sqrt(v + 1.0f) * 0.5f;
 	float mult = 0.25f / bigValue;
 
-	switch(bigIdx)
+	switch (bigIdx)
 	{
-		case 0:
-			return quat(bigValue, (matrix[1][2] - matrix[2][1]) * mult, (matrix[2][0] - matrix[0][2]) * mult, (matrix[0][1] - matrix[1][0]) * mult);
-		case 1:
-			return quat((matrix[1][2] - matrix[2][1]) * mult, bigValue, (matrix[0][1] + matrix[1][0]) * mult, (matrix[2][0] + matrix[0][2]) * mult);
-		case 2:
-			return quat((matrix[2][0] - matrix[0][2]) * mult, (matrix[0][1] + matrix[1][0]) * mult, bigValue, (matrix[1][2] + matrix[2][1]) * mult);
-		case 3:
-			return quat((matrix[0][1] - matrix[1][0]) * mult, (matrix[2][0] + matrix[0][2]) * mult, (matrix[1][2] + matrix[2][1]) * mult, bigValue);
-		default:
-			return quat(1, 0, 0, 0);
+	case 0:
+		return quat(bigValue, (matrix[1][2] - matrix[2][1]) * mult, (matrix[2][0] - matrix[0][2]) * mult,
+					(matrix[0][1] - matrix[1][0]) * mult);
+	case 1:
+		return quat((matrix[1][2] - matrix[2][1]) * mult, bigValue, (matrix[0][1] + matrix[1][0]) * mult,
+					(matrix[2][0] + matrix[0][2]) * mult);
+	case 2:
+		return quat((matrix[2][0] - matrix[0][2]) * mult, (matrix[0][1] + matrix[1][0]) * mult, bigValue,
+					(matrix[1][2] + matrix[2][1]) * mult);
+	case 3:
+		return quat((matrix[0][1] - matrix[1][0]) * mult, (matrix[2][0] + matrix[0][2]) * mult,
+					(matrix[1][2] + matrix[2][1]) * mult, bigValue);
+	default:
+		return quat(1, 0, 0, 0);
 	}
 }
 

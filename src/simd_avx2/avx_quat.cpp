@@ -180,7 +180,7 @@ float getPitch(const quat &q)
 	float y = 2.0f * (q.w * q.x + q.y * q.z);
 	float x = (q.w * q.w - q.x * q.x - q.y * q.y + q.z * q.z);
 
-	if (abs(y - x) <= 1e-6f)
+	if (abs(y - x) <= 1e-8f)
 	{
 		return 2 * atan2(q.x, q.w);
 	}
@@ -197,7 +197,7 @@ float getRoll(const quat &q)
 	float y = 2.0f * (q.x * q.y + q.w * q.z);
 	float x = q.w * q.w + q.x * q.x - q.y * q.y - q.z * q.z;
 
-	if (abs(y - x) < 1e-4f)
+	if (abs(y - x) < 1e-8f)
 		return 0.0f;
 	return atan2(y, x);
 }

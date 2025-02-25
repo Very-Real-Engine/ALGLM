@@ -380,7 +380,7 @@ float determinant(const mat4 &m)
 bool decompose(const mat4 &modelMatrix, vec3 &scale, quat &rotation, vec3 &translation, vec4 &perspective)
 {
 	mat4 localMatrix(modelMatrix);
-	if (abs(localMatrix[3][3]) <= 1e-6f)
+	if (abs(localMatrix[3][3]) <= 1e-8f)
 	{
 		return false;
 	}
@@ -400,12 +400,12 @@ bool decompose(const mat4 &modelMatrix, vec3 &scale, quat &rotation, vec3 &trans
 	}
 	perspectiveMatrix[3][3] = 1.0f;
 
-	if (abs(determinant(perspectiveMatrix)) <= 1e-6f)
+	if (abs(determinant(perspectiveMatrix)) <= 1e-8f)
 	{
 		return false;
 	}
 
-	if (abs(localMatrix[0][3]) > 1e-6f || abs(localMatrix[1][3]) > 1e-6f || abs(localMatrix[2][3]) > 1e-6f)
+	if (abs(localMatrix[0][3]) > 1e-8f || abs(localMatrix[1][3]) > 1e-8f || abs(localMatrix[2][3]) > 1e-8f)
 	{
 		vec4 rhs;
 		rhs[0] = localMatrix[0][3];
