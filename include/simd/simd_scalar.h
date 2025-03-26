@@ -7,6 +7,7 @@
 #include "../scalar/mat3.h"
 #include "../scalar/mat4.h"
 #include "../scalar/quat.h"
+#include "../simd/compiler_config.h"
 
 namespace alglm
 {
